@@ -23,6 +23,7 @@ except Exception as e:
     sys.exit(1)
 
 def verify_signature(request):
+    print(f"this is the request: {request}")
     signature = request.headers.get('Box-Signature')
     print(f"this is the signature: {signature}")
     if not signature:
