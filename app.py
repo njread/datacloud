@@ -1,21 +1,30 @@
+import os
+import sys
+import logging
 from flask import Flask, request, jsonify
 import requests
 import hmac
 import hashlib
 import base64
 from dotenv import load_dotenv
-import os
+
+load_dotenv()
 
 app = Flask(__name__)
 
-SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
-SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
-BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
+# Configure logging
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
+try:
+    SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
+    SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
+    BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
 
-@app.route('/')
-def index():
-    return 'Hello, this is the home page of your Flask app running on Heroku!'
+    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN or not BOX_WEBHOOK_SECRET:
+        raise ValueError("Missing necessary environment variables.")
+except Exception as e:
+    logging.error(f"Error loading environment variables: {e}")
+    sys.exit(1)
 
 def verify_signature(request):
     signature = request.headers.get('Box-Signature')
@@ -26,6 +35,10 @@ def verify_signature(request):
     payload = request.data + BOX_WEBHOOK_SECRET.encode()
     expected_signature = base64.b64encode(hmac.new(BOX_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).digest()).decode()
     return hmac.compare_digest(primary_signature, expected_signature)
+
+@app.route('/')
+def index():
+    return 'Hello, this is the home page of your Flask app running on Heroku!'
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
