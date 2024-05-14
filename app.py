@@ -3,12 +3,14 @@ import requests
 import hmac
 import hashlib
 import base64
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
 
-SALESFORCE_DATA_CLOUD_ENDPOINT = 'https://your-salesforce-data-cloud-endpoint'
-SALESFORCE_ACCESS_TOKEN = 'YOUR_ACCESS_TOKEN'
-BOX_WEBHOOK_SECRET = 'YOUR_WEBHOOK_SECRET'
+SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
+SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
+BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
 
 def verify_signature(request):
     signature = request.headers.get('Box-Signature')
