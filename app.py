@@ -23,18 +23,22 @@ except Exception as e:
     sys.exit(1)
 
 def verify_signature(request):
-    print(f"this is the request: {request}")
-    for i in request:
-        print(i)
+    logging.debug(f"Request headers: {request.headers}")
+    logging.debug(f"Request data: {request.data}")
+    
     signature = request.headers.get('Box-Signature')
-    print(f"this is the signature: {signature}")
+    logging.debug(f"Received signature: {signature}")
+    
     if not signature:
         return False
+    
     signature_parts = signature.split(',')
-    print(f"this is the signature_parts: {signature_parts}")
+    logging.debug(f"Signature parts: {signature_parts}")
+    
     primary_signature = signature_parts[0].split('=')[1]
     payload = request.data + BOX_WEBHOOK_SECRET.encode()
     expected_signature = base64.b64encode(hmac.new(BOX_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).digest()).decode()
+    
     return hmac.compare_digest(primary_signature, expected_signature)
 
 @app.route('/')
@@ -45,14 +49,18 @@ def index():
 def box_webhook():
     if not verify_signature(request):
         return jsonify({'status': 'error', 'message': 'Invalid signature'}), 403
+    
     event = request.json
-    print(f"Received event: {event}")
+    logging.debug(f"Received event: {event}")
+    
     if event['event_type'] == 'FILE.PREVIEWED':
         user_id = event['source']['created_by']['id']
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
-        print(f"User {user_id} previewed file {file_name} at {previewed_at}")
+        
+        logging.debug(f"User {user_id} previewed file {file_name} at {previewed_at}")
+        
         data = {
             'userId': user_id,
             'fileName': file_name,
@@ -64,8 +72,9 @@ def box_webhook():
             'Authorization': f'Bearer {SALESFORCE_ACCESS_TOKEN}',
             'Content-Type': 'application/json'
         }
+        
         response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
-
+        
         if response.status_code == 200:
             return jsonify({'status': 'success'}), 200
         else:
