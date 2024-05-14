@@ -42,6 +42,7 @@ def verify_signature(request):
     return hmac.compare_digest(primary_signature, expected_signature)
 
 @app.route('/')
+
 def index():
     return 'Hello, this is the home page of your Flask app running on Heroku!'
 
