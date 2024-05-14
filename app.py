@@ -6,9 +6,6 @@ import requests
 import hmac
 import hashlib
 import base64
-from dotenv import load_dotenv
-
-load_dotenv()
 
 app = Flask(__name__)
 
