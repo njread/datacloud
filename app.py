@@ -3,9 +3,6 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 import requests
-import hmac
-import hashlib
-import base64
 
 app = Flask(__name__)
 
@@ -15,42 +12,23 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
     SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
-    BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
-    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN or not BOX_WEBHOOK_SECRET:
+    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
     logging.error(f"Error loading environment variables: {e}")
     sys.exit(1)
 
-def verify_signature(request):
-    logging.debug(f"Request headers: {request.headers}")
-    logging.debug(f"Request data: {request.data}")
-    
-    signature = request.headers.get('Box-Signature')
-    logging.debug(f"Received signature: {signature}")
-    
-    if not signature:
-        return False
-    
-    signature_parts = signature.split(',')
-    logging.debug(f"Signature parts: {signature_parts}")
-    
-    primary_signature = signature_parts[0].split('=')[1]
-    payload = request.data + BOX_WEBHOOK_SECRET.encode()
-    expected_signature = base64.b64encode(hmac.new(BOX_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).digest()).decode()
-    
-    return hmac.compare_digest(primary_signature, expected_signature)
-
 @app.route('/')
-
 def index():
     return 'Hello, this is the home page of your Flask app running on Heroku!'
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
-    if not verify_signature(request):
-        return jsonify({'status': 'error', 'message': 'Invalid signature'}), 403
+    # Log the request headers and data for debugging
+    logging.debug(f"Request headers: {request.headers}")
+    logging.debug(f"Request data: {request.data}")
     
+    # Process the event without verifying the signature
     event = request.json
     logging.debug(f"Received event: {event}")
     
