@@ -12,6 +12,11 @@ SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
 SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
 BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
 
+
+@app.route('/')
+def index():
+    return 'Hello, this is the home page of your Flask app running on Heroku!'
+
 def verify_signature(request):
     signature = request.headers.get('Box-Signature')
     if not signature:
