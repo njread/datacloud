@@ -48,7 +48,7 @@ def box_webhook():
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
-
+        print(f"User {user_id} previewed file {file_name} at {previewed_at}")
         data = {
             'userId': user_id,
             'fileName': file_name,
