@@ -24,6 +24,8 @@ except Exception as e:
 
 def verify_signature(request):
     print(f"this is the request: {request}")
+    for i in request:
+        print(i)
     signature = request.headers.get('Box-Signature')
     print(f"this is the signature: {signature}")
     if not signature:
