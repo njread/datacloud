@@ -32,8 +32,9 @@ def box_webhook():
     event = request.json
     logging.debug(f"Received event: {event}")
     
-    if event['event_type'] == 'FILE.PREVIEWED':
-        user_id = event['source']['created_by']['id']
+    # Corrected key check to 'trigger'
+    if event.get('trigger') == 'FILE.PREVIEWED':
+        user_id = event['created_by']['id']
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
