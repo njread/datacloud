@@ -16,7 +16,6 @@ try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
     SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
     BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
-    print( f" endpoints: {SALESFORCE_DATA_CLOUD_ENDPOINT}, {SALESFORCE_ACCESS_TOKEN}, {BOX_WEBHOOK_SECRET}")
     if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN or not BOX_WEBHOOK_SECRET:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
@@ -25,9 +24,11 @@ except Exception as e:
 
 def verify_signature(request):
     signature = request.headers.get('Box-Signature')
+    print(f"this is the signature: {signature}")
     if not signature:
         return False
     signature_parts = signature.split(',')
+    print(f"this is the signature_parts: {signature_parts}")
     primary_signature = signature_parts[0].split('=')[1]
     payload = request.data + BOX_WEBHOOK_SECRET.encode()
     expected_signature = base64.b64encode(hmac.new(BOX_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).digest()).decode()
@@ -41,8 +42,8 @@ def index():
 def box_webhook():
     if not verify_signature(request):
         return jsonify({'status': 'error', 'message': 'Invalid signature'}), 403
-
     event = request.json
+    print(f"Received event: {event}")
     if event['event_type'] == 'FILE.PREVIEWED':
         user_id = event['source']['created_by']['id']
         file_name = event['source']['name']
