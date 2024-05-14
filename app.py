@@ -19,7 +19,7 @@ try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
     SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
     BOX_WEBHOOK_SECRET = os.getenv('BOX_WEBHOOK_SECRET')
-
+    print( f" endpoints: {SALESFORCE_DATA_CLOUD_ENDPOINT}, {SALESFORCE_ACCESS_TOKEN}, {BOX_WEBHOOK_SECRET}")
     if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN or not BOX_WEBHOOK_SECRET:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
