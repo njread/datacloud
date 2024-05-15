@@ -24,13 +24,8 @@ def index():
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
-    # Log the request headers and data for debugging
-    logging.debug(f"Request headers: {request.headers}")
-    logging.debug(f"Request data: {request.data}")
-    
     # Process the event without verifying the signature
     event = request.json
-    logging.debug(f"Received event: {event}")
     
     # Corrected key check to 'trigger'
     if event.get('trigger') == 'FILE.PREVIEWED':
@@ -39,13 +34,12 @@ def box_webhook():
         file_id = event['source']['id']
         previewed_at = event['created_at']
         
-        logging.debug(f"User {user_id} previewed file {file_name} at {previewed_at}")
+        print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at}")
         
         data = {
-            'userId': user_id,
-            'fileName': file_name,
-            'fileId': file_id,
-            'previewedAt': previewed_at
+            'boxuserid': user_id,
+            'fBoxFilename': file_name,
+            'BoxFileID': file_id,
         }
 
         headers = {
