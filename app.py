@@ -38,7 +38,7 @@ def box_webhook():
         
         data = {
             'boxuserid': user_id,
-            'fBoxFilename': file_name,
+            'BoxFilename': file_name,
             'BoxFileID': file_id,
         }
 
