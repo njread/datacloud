@@ -24,7 +24,7 @@ def index():
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
-    # Process the event without verifying the signature
+   
     event = request.json
     
     # Corrected key check to 'trigger'
@@ -33,6 +33,9 @@ def box_webhook():
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
+        
+        #events to subscribe to later on
+        #folder_id = event['source']['parent']['id']
         
         print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at}")
         
