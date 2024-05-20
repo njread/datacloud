@@ -7,12 +7,12 @@ import requests
 app = Flask(__name__)
 
 # Configure logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, style=SystemError)
 
 try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
-    SALESFORCE_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
-    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_ACCESS_TOKEN:
+    SALESFORCE_DATA_CLOUD_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
+    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_DATA_CLOUD_ACCESS_TOKEN:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
     logging.error(f"Error loading environment variables: {e}")
@@ -37,20 +37,22 @@ def box_webhook():
         print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at}")
         
         data = {
-            'boxuserid': user_id,
-            'BoxFilename': file_name,
-            'BoxFileID': file_id,
+        "data": [{
+        "Boxuser":user_id,
+        "BoxFilename": file_name,
+        "BoxFileID":file_id
         }
+    ]}
 
         headers = {
-            'Authorization': f'Bearer {SALESFORCE_ACCESS_TOKEN}',
+            'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
             'Content-Type': 'application/json'
         }
         
         response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
         
-        if response.status_code == 200:
-            return jsonify({'status': 'success'}), 200
+        if response.status_code == 202:
+            return jsonify({'status': 'success'}), 202
         else:
             return jsonify({'status': 'error', 'message': response.text}), response.status_code
 
