@@ -4,3 +4,5 @@ client_secrets.json
 .pub
 jwtmaker.py
 datacloud_instance.py
+server.key
+server.pub
