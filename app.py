@@ -7,7 +7,7 @@ import requests
 app = Flask(__name__)
 
 # Configure logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, style=SystemError)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
@@ -33,7 +33,7 @@ def box_webhook():
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
-        
+
         #events to subscribe to later on
         #folder_id = event['source']['parent']['id']
         

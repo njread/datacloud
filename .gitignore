@@ -1,2 +1,6 @@
 client_secrets.json
 .env
+.key
+.pub
+jwtmaker.py
+datacloud_instance.py
