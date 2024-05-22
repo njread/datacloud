@@ -24,29 +24,24 @@ def index():
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
-   
     event = request.json
     
-    # Corrected key check to 'trigger'
     if event.get('trigger') == 'FILE.PREVIEWED':
         user_id = event['created_by']['id']
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
-
-        #events to subscribe to later on
-        #folder_id = event['source']['parent']['id']
         
         print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at}")
         
         data = {
-        "data": [{
-        "Boxuser":user_id,
-        "BoxFilename": file_name,
-        "BoxFileID":file_id,
-        "Boxenterpriseid": 1164695563,
+            "data": [{
+                "Boxuser": user_id,
+                "BoxFilename": file_name,
+                "BoxFileID": file_id,
+                "Boxenterpriseid": 1164695563,
+            }]
         }
-    ]}
 
         headers = {
             'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
@@ -60,6 +55,41 @@ def box_webhook():
         else:
             return jsonify({'status': 'error', 'message': response.text}), response.status_code
 
+    return jsonify({'status': 'ignored'}), 200
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    event = request.json
+    
+    if event.get('trigger') == 'FILE.UPLOADED':
+        user_id = event['created_by']['id']
+        file_name = event['source']['name']
+        file_id = event['source']['id']
+        uploaded_at = event['created_at']
+        
+        print(f"User {user_id} uploaded file {file_name} file id {file_id} at {uploaded_at}")
+        
+        data = {
+            "data": [{
+                "Boxuser": user_id,
+                "BoxFilename": file_name,
+                "BoxFileID": file_id,
+                "Boxenterpriseid": 1164695563,
+            }]
+        }
+
+        headers = {
+            'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
+            'Content-Type': 'application/json'
+        }
+        
+        response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
+        
+        if response.status_code == 202:
+            return jsonify({'status': 'success'}), 202
+        else:
+            return jsonify({'status': 'error', 'message': response.text}), response.status_code
+    
     return jsonify({'status': 'ignored'}), 200
 
 if __name__ == "__main__":
