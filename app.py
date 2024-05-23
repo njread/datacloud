@@ -59,14 +59,7 @@ def box_webhook():
             return jsonify({'status': 'success'}), 202
         else:
             return jsonify({'status': 'error', 'message': response.text}), response.status_code
-
-    return jsonify({'status': 'ignored'}), 200
-
-@app.route('/box-upload', methods=['POST'])
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    event = request.json
-    
+        
     if event.get('trigger') == 'FILE.UPLOADED':
         print("File uploaded event received")
         user_id = event['created_by']['id']
@@ -140,9 +133,8 @@ def upload_file():
             return jsonify({'status': 'error', 'message': str(e)}), 500
         
         return jsonify({'status': 'success'}), 202
-    
+
     return jsonify({'status': 'ignored'}), 200
-   
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
