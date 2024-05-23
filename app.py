@@ -3,8 +3,7 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 import requests
-from boxsdk import JWTAuth
-from boxsdk import *
+
 
 app = Flask(__name__)
 
@@ -97,12 +96,9 @@ def upload_file():
         # Metadata update and script execution
         try:
             # Update metadata with AI insights
-            configFile = "AI_DemoCreds.json"
-            auth = JWTAuth.from_settings_file(configFile)
-            auth.authenticate_instance()
-            client = LoggingClient(auth)
+
             BoxAI_metadata_url = f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_1164695563&template_key=aitest&confidence=experimental"
-            BOX_AI_response = requests.get(BoxAI_metadata_url, headers={"Authorization": f"Bearer {client}"})
+            BOX_AI_response = requests.get(BoxAI_metadata_url, headers={"Authorization": f"Bearer Z8oK4g6VhELu9qPIwegvpFMv8UsagOMz"})
             
             if BOX_AI_response.status_code == 200:
                 print(f"Metadata update successful: {BOX_AI_response.text}")
