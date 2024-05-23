@@ -61,6 +61,7 @@ def box_webhook():
             return jsonify({'status': 'error', 'message': response.text}), response.status_code
         
     if event.get('trigger') == 'FILE.UPLOADED':
+        print(event['source'])
         print("File uploaded event received")
         user_id = event['created_by']['id']
         file_name = event['source']['name']
