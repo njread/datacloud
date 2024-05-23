@@ -68,6 +68,7 @@ def upload_file():
     event = request.json
     
     if event.get('trigger') == 'FILE.UPLOADED':
+        print("File uploaded event received")
         user_id = event['created_by']['id']
         file_name = event['source']['name']
         file_id = event['source']['id']
