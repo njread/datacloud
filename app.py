@@ -95,8 +95,9 @@ def box_webhook():
         try:
             # Update metadata with AI insights
 
-            BoxAI_metadata_url = f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_1164695563&template_key=aitest&confidence=experimental"
+            BoxAI_metadata_url = f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
             BOX_AI_response = requests.get(BoxAI_metadata_url, headers={"Authorization": f"Bearer Z8oK4g6VhELu9qPIwegvpFMv8UsagOMz"})
+
             
             if BOX_AI_response.status_code == 200:
                 print(f"Metadata update successful: {BOX_AI_response.text}")
@@ -126,7 +127,7 @@ def box_webhook():
                 response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
                 
             else:
-                print("Metadata update failed: ", response.text)
+                print("Metadata update failed: ", BOX_AI_response.text)
 
         except Exception as e:
             logging.error(f"Error in metadata update: {e}")
