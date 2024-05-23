@@ -98,37 +98,37 @@ def box_webhook():
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
                         , headers={"Authorization": "Bearer NmWotqmBQLtMK2XE0hfvzM65ty0OiItn"})
             print(AIresponse.text)
-            #print({BOX_AI_response.text})
             
-            # if BOX_AI_response.status_code == 200:
-            #     print(f"Metadata update successful: {BOX_AI_response.text}")
-            #     #Make a DataCloud Entry of Metadata
-            #     if event.get('trigger') == 'METADATA.UPDATE':
-            #         MetadataAttribute = event['created_by']['id']
-            #         file_name = event['source']['name']
-            #         file_id = event['source']['id']
-            #         MetadataValue = event['created_at']
-        
-            #         print(f"Metadata Attributes {MetadataAttribute} of file {file_name} file id {file_id} were updated {MetadataValue}")
-        
-            #         data = {
-            #             "data": [{
-            #             "Boxuser": user_id,
-            #             "BoxFilename": file_name,
-            #             "BoxFileID": file_id,
-            #             "Boxenterpriseid": 1164695563,
-            #         }]
-            #     }
+            if AIresponse.status_code == 200:
+                print(f"Metadata update successful: {AIresponse.text}")
+                #Make a DataCloud Entry of Metadata
+                AIresponsedata = AIresponse.json()
+                MetadtaDataTemplate = AIresponsedata['templateKey']
+                order_number = AIresponsedata['suggestions']['orderNumber']
+                invoice_number = AIresponsedata['suggestions']['invoiceNumber']
+                MetadtaDataList = [order_number, invoice_number]
 
-            #     headers = {
-            #         'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
-            #         'Content-Type': 'application/json'
-            #     }
+
+                data = {
+                        "data": [{
+                        "Boxuser": user_id,
+                        "BoxFilename": file_name,
+                        "BoxFileID": file_id,
+                        "BoxMetadatatemplate" : MetadtaDataTemplate,
+                        "BoxMetadataAttribute": MetadtaDataList,
+                        "Boxenterpriseid": 1164695563,
+                    }]
+                }
+
+                headers = {
+                    'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
+                    'Content-Type': 'application/json'
+                }
         
-            #     response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
+                response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
                 
-            # else:
-            #     print(f"Metadata update failed:  {BOX_AI_response.text}")
+            else:
+                print(f"Metadata update failed:  {BOX_AI_response.text}")
 
         except Exception as e:
             logging.error(f"Error in metadata update: {e}")
