@@ -3,7 +3,7 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 import requests
-from boxsdk import JWTAuth, Client
+from boxsdk import JWTAuth
 from boxsdk import *
 
 app = Flask(__name__)
@@ -191,12 +191,10 @@ def shared_externally():
                 "Boxenterpriseid": 1164695563,
             }]
         }
-
         headers = {
             'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
             'Content-Type': 'application/json'
         }
-        
         response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
         if response.status_code == 202:
             return jsonify({'status': 'success'}), 202
