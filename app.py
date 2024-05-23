@@ -61,12 +61,14 @@ def box_webhook():
             return jsonify({'status': 'error', 'message': response.text}), response.status_code
         
     if event.get('trigger') == 'FILE.UPLOADED':
-        print(event['source'])
         print("File uploaded event received")
         user_id = event['created_by']['id']
+        user_email = event['created_by']['login']
         file_name = event['source']['name']
         file_id = event['source']['id']
         uploaded_at = event['created_at']
+        folder_id = event['source']['parent']['id']
+        folder_name = event['source']['parent']['name']
         
         print(f"User {user_id} uploaded file {file_name} file id {file_id} at {uploaded_at}")
         
@@ -107,7 +109,7 @@ def box_webhook():
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-                print(order_number)
+                
 
                 data = {
                         "data": [{
@@ -115,7 +117,11 @@ def box_webhook():
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}"
+                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}",
+                        "BoxFolderID": folder_id,
+                        "BoxFoldername": folder_name, 
+                        "Boxuser": user_email
+
                     }]
                 }
 
