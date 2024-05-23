@@ -109,7 +109,11 @@ def box_webhook():
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-                
+                address = AIresponsedata['suggestions']['address']
+                invoice_date = AIresponsedata['suggestions']['invoiceDate']
+                total_amount = AIresponsedata['suggestions']['totalAmount']
+
+
 
                 data = {
                         "data": [{
@@ -117,7 +121,7 @@ def box_webhook():
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}",
+                        "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Address: {address}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email
