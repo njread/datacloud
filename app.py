@@ -114,7 +114,7 @@ def box_webhook():
                         "Boxuser": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
-                        "BoxMetadatatemplate" : MetadtaDataTemplate,
+                        "BoxMetadatatemplate" : order_number + invoice_number,
                         "BoxMetadataAttribute": MetadtaDataList,
                         "Boxenterpriseid": 1164695563,
                     }]
