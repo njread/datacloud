@@ -107,7 +107,7 @@ def box_webhook():
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
                 MetadtaDataList = [order_number, invoice_number]
-
+                print(order_number)
 
                 data = {
                         "data": [{
