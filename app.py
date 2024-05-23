@@ -103,7 +103,7 @@ def box_webhook():
                 print(f"Metadata update successful: {AIresponse.text}")
                 #Make a DataCloud Entry of Metadata
                 AIresponsedata = AIresponse.json()
-                MetadtaDataTemplate = AIresponsedata['templateKey']
+                MetadtaDataTemplate = AIresponsedata['$templateKey']
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
                 MetadtaDataList = [order_number, invoice_number]
