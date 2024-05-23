@@ -6,3 +6,4 @@ jwtmaker.py
 datacloud_instance.py
 server.key
 server.pub
+AI_DemoCreds.json
