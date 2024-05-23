@@ -97,7 +97,7 @@ def box_webhook():
 
             AIresponse = requests.get(url="https://api.box.com/2.0/metadata_instances/suggestions?item=file_1498089640165&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
                         , headers={"Authorization": "Bearer NmWotqmBQLtMK2XE0hfvzM65ty0OiItn"})
-            print(AIresponse)
+            print(AIresponse.text)
             #print({BOX_AI_response.text})
             
             # if BOX_AI_response.status_code == 201:
