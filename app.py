@@ -95,7 +95,7 @@ def box_webhook():
         try:
             # Update metadata with AI insights
 
-            AIresponse = requests.get(url="https://api.box.com/2.0/metadata_instances/suggestions?item=file_1539387143992&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
+            AIresponse = requests.get(url="https://api.box.com/2.0/metadata_instances/suggestions?item=file_1539398615239&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
                         , headers={"Authorization": "Bearer NmWotqmBQLtMK2XE0hfvzM65ty0OiItn"})
             print(AIresponse.text)
             #print({BOX_AI_response.text})
