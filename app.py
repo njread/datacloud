@@ -71,7 +71,7 @@ def box_webhook():
         
         data = {
             "data": [{
-                "Boxuser": user_id,
+                "Boxuserid": user_id,
                 "BoxFilename": file_name,
                 "BoxFileID": file_id,
                 "Boxenterpriseid": 1164695563,
@@ -110,12 +110,11 @@ def box_webhook():
 
                 data = {
                         "data": [{
-                        "Boxuser": user_id,
+                        "Boxuserid": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}",
-                        "Boxenterpriseid": file_id,
+                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}"
                     }]
                 }
 
