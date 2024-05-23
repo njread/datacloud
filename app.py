@@ -62,6 +62,10 @@ def box_webhook():
 
     return jsonify({'status': 'ignored'}), 200
 
+@app.route('/box-upload', methods=['POST'])
+def box_upload():
+   
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
