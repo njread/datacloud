@@ -106,7 +106,6 @@ def box_webhook():
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-                MetadtaDataList = [order_number, invoice_number]
                 print(order_number)
 
                 data = {
@@ -114,9 +113,9 @@ def box_webhook():
                         "Boxuser": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
-                        "BoxMetadatatemplate" : f"Order Number:{order_number} Invoice Number: {invoice_number}",
-                        "BoxMetadataAttribute": MetadtaDataList,
-                        "Boxenterpriseid": 1164695563,
+                        "BoxMetadatatemplate" : MetadtaDataTemplate,
+                        "BoxMetadataAttribute": f"Order Number:{order_number} Invoice Number: {invoice_number}",
+                        "Boxenterpriseid": file_id,
                     }]
                 }
 
@@ -128,7 +127,7 @@ def box_webhook():
                 response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
                 
             else:
-                print(f"Metadata update failed:  {BOX_AI_response.text}")
+                print(f"Metadata update failed:  {response.text}")
 
         except Exception as e:
             logging.error(f"Error in metadata update: {e}")
