@@ -64,6 +64,7 @@ def box_webhook():
 
 @app.route('/box-upload', methods=['POST'])
 def box_upload():
+    return 'Hello, this is the home page of your Flask app running on Heroku!'
    
 
 if __name__ == "__main__":
