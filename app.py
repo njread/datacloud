@@ -109,7 +109,6 @@ def box_webhook():
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 order_number = AIresponsedata['suggestions']['orderNumber']
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-                address = AIresponsedata['suggestions']['address']
                 invoice_date = AIresponsedata['suggestions']['invoiceDate']
                 total_amount = AIresponsedata['suggestions']['total']
 
