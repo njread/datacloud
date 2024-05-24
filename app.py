@@ -103,6 +103,7 @@ def box_webhook():
                 "BoxFilename": file_name,
                 "BoxFileID": file_id,
                 "Boxenterpriseid": 1164695563,
+                "BoxCountOfPreviews": Preview_count,
             }]
         }
 
@@ -149,6 +150,7 @@ def box_webhook():
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email
+                        "BoxCountOfPreviews": "0",
 
                     }]
                 }
