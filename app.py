@@ -19,7 +19,7 @@ except Exception as e:
     sys.exit(1)
 
 # In-memory store for simplicity (use a database in production)
-preview_counts = {}
+file_data_store = {}
 
 @app.route('/')
 def index():
@@ -30,30 +30,36 @@ def box_webhook():
     event = request.json
     
     if event.get('trigger') == 'FILE.PREVIEWED':
-        handle_file_previewed(event)
+        return handle_file_previewed(event)
     elif event.get('trigger') == 'FILE.UPLOADED':
-        handle_file_uploaded(event)
+        return handle_file_uploaded(event)
     
     return jsonify({'status': 'ignored'}), 200
 
 def handle_file_previewed(event):
     user_id = event['created_by']['id']
     file_id = event['source']['id']
+    previewed_at = event['created_at']
+    
+    # Fetch existing data
+    if file_id in file_data_store:
+        file_data = file_data_store[file_id]
+    else:
+        logging.error(f"File {file_id} not found in store. Ignoring preview event.")
+        return jsonify({'status': 'error', 'message': 'File not found'}), 404
     
     # Update the preview count
-    if file_id not in preview_counts:
-        preview_counts[file_id] = 0
-    preview_counts[file_id] += 1
+    file_data['PreviewCount'] = file_data.get('PreviewCount', 0) + 1
     
-    previewed_at = event['created_at']
-    preview_count = preview_counts[file_id]
+    print(f"User {user_id} previewed file {file_data['BoxFilename']} (file id {file_id}) at {previewed_at} with a preview count of {file_data['PreviewCount']}")
     
+    # Update Salesforce Data Cloud
     data = {
         "data": [{
             "Boxuser": user_id,
             "BoxFileID": file_id,
             "Boxenterpriseid": 1164695563,
-            "PreviewCount": preview_count,
+            "PreviewCount": file_data['PreviewCount'],
             "PreviewedAt": previewed_at
         }]
     }
@@ -67,8 +73,10 @@ def handle_file_previewed(event):
     
     if response.status_code == 202:
         logging.info('Salesforce data cloud update success for preview')
+        return jsonify({'status': 'success'}), 202
     else:
         logging.error('Salesforce data cloud update error for preview: ' + response.text)
+        return jsonify({'status': 'error', 'message': response.text}), response.status_code
 
 def handle_file_uploaded(event):
     user_id = event['created_by']['id']
@@ -79,15 +87,23 @@ def handle_file_uploaded(event):
     folder_id = event['source']['parent']['id']
     folder_name = event['source']['parent']['name']
     
-    print(f"User {user_id} uploaded file {file_name} file id {file_id} at {uploaded_at}")
+    print(f"User {user_id} uploaded file {file_name} (file id {file_id}) at {uploaded_at}")
+    
+    # Initialize data for the uploaded file
+    file_data_store[file_id] = {
+        "Boxuserid": user_id,
+        "Boxuseremail": user_email,
+        "BoxFilename": file_name,
+        "BoxFileID": file_id,
+        "Boxenterpriseid": 1164695563,
+        "BoxFolderID": folder_id,
+        "BoxFoldername": folder_name,
+        "UploadTimestamp": uploaded_at,
+        "PreviewCount": 0
+    }
     
     data = {
-        "data": [{
-            "Boxuserid": user_id,
-            "BoxFilename": file_name,
-            "BoxFileID": file_id,
-            "Boxenterpriseid": 1164695563,
-        }]
+        "data": [file_data_store[file_id]]
     }
 
     headers = {
@@ -107,7 +123,7 @@ def handle_file_uploaded(event):
     try:
         # Update metadata with AI insights
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental",
-                                  headers={"Authorization": "Bearer CB0mFZO18AeE2exZwodJHxY49pvZu5Ll"})
+                                  headers={"Authorization": "Bearer O2Km3CfA3XimWrVMPTD30vJEI7v08BAZ"})
         print(AIresponse.text)
         
         if AIresponse.status_code == 200:
@@ -129,7 +145,7 @@ def handle_file_uploaded(event):
                     "BoxFolderID": folder_id,
                     "BoxFoldername": folder_name,
                     "Boxuser": user_email,
-                    "BoxCountOfPreviews": preview_counts.get(file_id, 0)
+                    "BoxCountOfPreviews": file_data_store[file_id]['PreviewCount']
                 }]
             }
 
@@ -145,6 +161,8 @@ def handle_file_uploaded(event):
     except Exception as e:
         logging.error(f"Error in metadata update: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+    return jsonify({'status': 'success'}), 202
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
