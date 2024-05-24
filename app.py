@@ -68,7 +68,8 @@ def box_webhook():
                     "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
                     "BoxFolderID": folder_id,
                     "BoxFoldername": folder_name, 
-                    "Boxuser": user_email
+                    "Boxuser": user_email,
+                    "BoxCountOfPreviews": Preview_count
 
                     }]
                 }
@@ -149,7 +150,7 @@ def box_webhook():
                         "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
-                        "Boxuser": user_email
+                        "Boxuser": user_email,
                         "BoxCountOfPreviews": "0",
 
                     }]
