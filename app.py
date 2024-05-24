@@ -107,7 +107,7 @@ def handle_file_uploaded(event):
     try:
         # Update metadata with AI insights
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental",
-                                  headers={"Authorization": "Bearer uHUqq0C6KvDn9tei3aVs1bweKHdDavh3"})
+                                  headers={"Authorization": "Bearer CB0mFZO18AeE2exZwodJHxY49pvZu5Ll"})
         print(AIresponse.text)
         
         if AIresponse.status_code == 200:
