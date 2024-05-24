@@ -36,7 +36,7 @@ def box_webhook():
         print(f"*******EVENT SOURCE*******:{event['source']}*******")
         print(f"the event: {event}")
         Preview_response = requests.get(url=f"https://api.box.com/2.0/files/{file_id}"
-                        , headers={"Authorization": "Bearer 6Ipxba5XPj0punF8ez13SgSkPT0Aw9TT"})
+                        , headers={"Authorization": "Bearer uHUqq0C6KvDn9tei3aVs1bweKHdDavh3"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
         Preview_count = Preview_response_data['preview_count']
@@ -104,7 +104,7 @@ def box_webhook():
             # Update metadata with AI insights
 
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
-                        , headers={"Authorization": "Bearer 6Ipxba5XPj0punF8ez13SgSkPT0Aw9TT"})
+                        , headers={"Authorization": "Bearer uHUqq0C6KvDn9tei3aVs1bweKHdDavh3"})
             print(AIresponse.text)
             
             if AIresponse.status_code == 200:
