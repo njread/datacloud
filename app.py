@@ -35,7 +35,7 @@ def box_webhook():
         previewed_at = event['created_at']
         print(f"*******EVENT SOURCE*******:{event['source']}*******")
         print(f"the event: {event}")
-        Preview_response = requests.get(url=f"https://api.box.com/2.0/files/{file_id}"
+        Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
                         , headers={"Authorization": "Bearer uHUqq0C6KvDn9tei3aVs1bweKHdDavh3"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
