@@ -33,6 +33,8 @@ def box_webhook():
         file_name = event['source']['name']
         file_id = event['source']['id']
         previewed_at = event['created_at']
+        print(f"*******EVENT SOURCE*******:{event['source']}*******")
+        print(f"the event: {event}")
 
         #events to subscribe to later on
         #folder_id = event['source']['parent']['id']
