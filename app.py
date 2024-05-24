@@ -35,11 +35,13 @@ def box_webhook():
         previewed_at = event['created_at']
         print(f"*******EVENT SOURCE*******:{event['source']}*******")
         print(f"the event: {event}")
-
-        #events to subscribe to later on
-        #folder_id = event['source']['parent']['id']
+        Preview_response = requests.get(url=f"https://api.box.com/2.0/files/{file_id}"
+                        , headers={"Authorization": "Bearer 6Ipxba5XPj0punF8ez13SgSkPT0Aw9TT"})
+        Preview_response_data = Preview_response.json()
+        print(f"Preview response data: {Preview_response_data}")
+        Preview_count = Preview_response_data['preview_count']
         
-        print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at}")
+        print(f"User {user_id} previewed file {file_name} file id {file_id} at {previewed_at} with a preview count of {Preview_count}")
         
         data = {
         "data": [{
@@ -47,6 +49,7 @@ def box_webhook():
         "BoxFilename": file_name,
         "BoxFileID":file_id,
         "Boxenterpriseid": 1164695563,
+        "BoxCountOfPreviews": Preview_count
         }
     ]}
 
