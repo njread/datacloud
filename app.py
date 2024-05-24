@@ -120,7 +120,7 @@ def box_webhook():
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Address: {address}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
+                        "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email
