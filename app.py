@@ -99,7 +99,7 @@ def box_webhook():
             # Update metadata with AI insights
 
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
-                        , headers={"Authorization": "Bearer EwsQ56X0HvLMhrfis4VBulvT5XlTEx9M"})
+                        , headers={"Authorization": "Bearer 6Ipxba5XPj0punF8ez13SgSkPT0Aw9TT"})
             print(AIresponse.text)
             
             if AIresponse.status_code == 200:
