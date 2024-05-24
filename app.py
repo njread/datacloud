@@ -49,7 +49,7 @@ def handle_file_previewed(event):
         return jsonify({'status': 'error', 'message': 'File not found'}), 404
     
     # Update the preview count
-    file_data['PreviewCount'] = file_data.get('PreviewCount', 0) + 1
+    file_data['PreviewCount'] += 1
     
     print(f"User {user_id} previewed file {file_data['BoxFilename']} (file id {file_id}) at {previewed_at} with a preview count of {file_data['PreviewCount']}")
     
@@ -60,7 +60,12 @@ def handle_file_previewed(event):
             "BoxFileID": file_id,
             "Boxenterpriseid": 1164695563,
             "PreviewCount": file_data['PreviewCount'],
-            "PreviewedAt": previewed_at
+            "PreviewedAt": previewed_at,
+            "BoxFilename": file_data['BoxFilename'],
+            "BoxFolderID": file_data['BoxFolderID'],
+            "BoxFoldername": file_data['BoxFoldername'],
+            "UploadTimestamp": file_data['UploadTimestamp'],
+            "Boxuseremail": file_data['Boxuseremail']
         }]
     }
 
@@ -103,7 +108,17 @@ def handle_file_uploaded(event):
     }
     
     data = {
-        "data": [file_data_store[file_id]]
+        "data": [{
+            "Boxuserid": user_id,
+            "Boxuseremail": user_email,
+            "BoxFilename": file_name,
+            "BoxFileID": file_id,
+            "Boxenterpriseid": 1164695563,
+            "BoxFolderID": folder_id,
+            "BoxFoldername": folder_name,
+            "UploadTimestamp": uploaded_at,
+            "PreviewCount": 0
+        }]
     }
 
     headers = {
@@ -123,7 +138,7 @@ def handle_file_uploaded(event):
     try:
         # Update metadata with AI insights
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental",
-                                  headers={"Authorization": "Bearer O2Km3CfA3XimWrVMPTD30vJEI7v08BAZ"})
+                                  headers={"Authorization": "Bearer uHUqq0C6KvDn9tei3aVs1bweKHdDavh3"})
         print(AIresponse.text)
         
         if AIresponse.status_code == 200:
