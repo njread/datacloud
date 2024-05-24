@@ -111,7 +111,7 @@ def box_webhook():
                 invoice_number = AIresponsedata['suggestions']['invoiceNumber']
                 address = AIresponsedata['suggestions']['address']
                 invoice_date = AIresponsedata['suggestions']['invoiceDate']
-                total_amount = AIresponsedata['suggestions']['totalAmount']
+                total_amount = AIresponsedata['suggestions']['total']
 
 
 
