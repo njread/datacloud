@@ -55,10 +55,19 @@ def box_webhook():
                 #Make a DataCloud Entry of Metadata
             AIresponsedata = AIresponse.json()
             MetadtaDataTemplate = AIresponsedata['$templateKey']
-            order_number = AIresponsedata['suggestions']['orderNumber']
-            invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-            invoice_date = AIresponsedata['suggestions']['invoiceDate']
-            total_amount = AIresponsedata['suggestions']['total']
+            MetadtaDataTemplate = AIresponsedata['$templateKey']
+            order_number = AIresponsedata['suggestions']['contractType']
+            invoice_number = AIresponsedata['suggestions']['contractEffectiveDate']
+            invoice_date = AIresponsedata['suggestions']['contractMasterServiceAgreement']
+            client = AIresponsedata['suggestions']['client']
+            project_name = AIresponsedata['suggestions']['projectName']
+            a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
+            config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
+            deliverables = AIresponsedata['suggestions']['deliverables']
+            client_dependencies = AIresponsedata['suggestions']['clientspecificDependencies']
+            project_presonnel = AIresponsedata['suggestions']['projectPersonnel']
+            totalestimatedfees = AIresponsedata['suggestions']['totalEstimatedServiceFees']
+            total_deliverables = AIresponsedata['suggestions']['milestoneOrDeliverables']
             
             data = {
                     "data": [{
@@ -66,7 +75,7 @@ def box_webhook():
                     "BoxFilename": file_name,
                     "BoxFileID": file_id,
                     "BoxMetadatatemplate" : MetadtaDataTemplate,
-                    "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
+                    "BoxMetadataAttribute": f"Client: {client} Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                     "BoxFolderID": folder_id,
                     "BoxFoldername": folder_name, 
                     "Boxuser": user_email,
@@ -135,10 +144,18 @@ def box_webhook():
                 #Make a DataCloud Entry of Metadata
                 AIresponsedata = AIresponse.json()
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
-                order_number = AIresponsedata['suggestions']['orderNumber']
-                invoice_number = AIresponsedata['suggestions']['invoiceNumber']
-                invoice_date = AIresponsedata['suggestions']['invoiceDate']
-                total_amount = AIresponsedata['suggestions']['total']
+                order_number = AIresponsedata['suggestions']['contractType']
+                invoice_number = AIresponsedata['suggestions']['contractEffectiveDate']
+                invoice_date = AIresponsedata['suggestions']['contractMasterServiceAgreement']
+                client = AIresponsedata['suggestions']['client']
+                project_name = AIresponsedata['suggestions']['projectName']
+                a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
+                config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
+                deliverables = AIresponsedata['suggestions']['deliverables']
+                client_dependencies = AIresponsedata['suggestions']['clientspecificDependencies']
+                project_presonnel = AIresponsedata['suggestions']['projectPersonnel']
+                totalestimatedfees = AIresponsedata['suggestions']['totalEstimatedServiceFees']
+                total_deliverables = AIresponsedata['suggestions']['milestoneOrDeliverables']
 
 
 
@@ -148,7 +165,7 @@ def box_webhook():
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}",
+                        "BoxMetadataAttribute": f"Client: {client} Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email,
