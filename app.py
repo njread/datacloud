@@ -46,7 +46,7 @@ def box_webhook():
         
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
         
-        AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
+        AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
                         , headers={"Authorization": "Bearer EZwd1qwy149G2osAD3k4MTyNTEQFExuU"})
         print(AIresponse.text)
             
@@ -73,7 +73,7 @@ def box_webhook():
                     "BoxFilename": file_name,
                     "BoxFileID": file_id,
                     "BoxMetadatatemplate" : MetadtaDataTemplate,
-                    "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
+                    "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                     "BoxFolderID": folder_id,
                     "BoxFoldername": folder_name, 
                     "Boxuser": user_email,
@@ -133,7 +133,7 @@ def box_webhook():
         try:
             # Update metadata with AI insights
 
-            AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=aitest&confidence=experimental"
+            AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
                         , headers={"Authorization": "Bearer EZwd1qwy149G2osAD3k4MTyNTEQFExuU"})
             print(AIresponse.text)
             
@@ -161,7 +161,7 @@ def box_webhook():
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
+                        "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email,
