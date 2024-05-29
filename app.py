@@ -39,7 +39,7 @@ def box_webhook():
         folder_name = event['source']['parent']['name']
 
         Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
-                        , headers={"Authorization": "Bearer EZwd1qwy149G2osAD3k4MTyNTEQFExuU"})
+                        , headers={"Authorization": "Bearer 2w37HtxbUU7GAswnSgKe6I0IUWC5hg0s"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
         Preview_count = Preview_response_data['preview_count']
@@ -47,14 +47,13 @@ def box_webhook():
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
         
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer EZwd1qwy149G2osAD3k4MTyNTEQFExuU"})
+                        , headers={"Authorization": "Bearer 2w37HtxbUU7GAswnSgKe6I0IUWC5hg0s"})
         print(AIresponse.text)
             
         if AIresponse.status_code == 200:
             print(f"Metadata update successful: {AIresponse.text}")
                 #Make a DataCloud Entry of Metadata
             AIresponsedata = AIresponse.json()
-            MetadtaDataTemplate = AIresponsedata['$templateKey']
             MetadtaDataTemplate = AIresponsedata['$templateKey']
             invoice_date = AIresponsedata['suggestions']['contractMasterServiceAgreement']
             client = AIresponsedata['suggestions']['client']
@@ -66,18 +65,20 @@ def box_webhook():
             project_presonnel = AIresponsedata['suggestions']['projectPersonnel']
             totalestimatedfees = AIresponsedata['suggestions']['totalEstimatedServiceFees']
             total_deliverables = AIresponsedata['suggestions']['milestoneOrDeliverables']
-            
+
+
+
             data = {
-                    "data": [{
-                    "Boxuserid": user_id,
-                    "BoxFilename": file_name,
-                    "BoxFileID": file_id,
-                    "BoxMetadatatemplate" : MetadtaDataTemplate,
-                    "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
-                    "BoxFolderID": folder_id,
-                    "BoxFoldername": folder_name, 
-                    "Boxuser": user_email,
-                    "BoxCountOfPreviews": Preview_count
+                        "data": [{
+                        "Boxuserid": user_id,
+                        "BoxFilename": file_name,
+                        "BoxFileID": file_id,
+                        "BoxMetadatatemplate" : MetadtaDataTemplate,
+                        "BoxMetadataAttribute": f"Client: {client}, Invoice Date: {invoice_date}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
+                        "BoxFolderID": folder_id,
+                        "BoxFoldername": folder_name, 
+                        "Boxuser": user_email,
+                        "BoxCountOfPreviews": "0",
 
                     }]
                 }
@@ -134,7 +135,7 @@ def box_webhook():
             # Update metadata with AI insights
 
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer EZwd1qwy149G2osAD3k4MTyNTEQFExuU"})
+                        , headers={"Authorization": "Bearer 2w37HtxbUU7GAswnSgKe6I0IUWC5hg0s"})
             print(AIresponse.text)
             
             if AIresponse.status_code == 200:
