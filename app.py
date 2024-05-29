@@ -56,7 +56,6 @@ def box_webhook():
             AIresponsedata = AIresponse.json()
             MetadtaDataTemplate = AIresponsedata['$templateKey']
             MetadtaDataTemplate = AIresponsedata['$templateKey']
-            invoice_number = AIresponsedata['suggestions']['contractEffectiveDate']
             invoice_date = AIresponsedata['suggestions']['contractMasterServiceAgreement']
             client = AIresponsedata['suggestions']['client']
             project_name = AIresponsedata['suggestions']['projectName']
@@ -74,7 +73,7 @@ def box_webhook():
                     "BoxFilename": file_name,
                     "BoxFileID": file_id,
                     "BoxMetadatatemplate" : MetadtaDataTemplate,
-                    "BoxMetadataAttribute": f"Client: {client} Order Number:{order_number}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
+                    "BoxMetadataAttribute": f"Client: {client}, Invoice Number: {invoice_number}, Invoice Date: {invoice_date}, Total Amount: {total_amount}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                     "BoxFolderID": folder_id,
                     "BoxFoldername": folder_name, 
                     "Boxuser": user_email,
