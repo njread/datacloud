@@ -30,6 +30,7 @@ def box_webhook():
     
     # Corrected key check to 'trigger'
     if event.get('trigger') == 'FILE.PREVIEWED':
+        item_id = event['source']['id']
         user_id = event['created_by']['id']
         user_email = event['created_by']['login']
         file_name = event['source']['name']
@@ -56,6 +57,7 @@ def box_webhook():
             AIresponsedata = AIresponse.json()
             MetadtaDataTemplate = AIresponsedata['$templateKey']
             client = AIresponsedata['suggestions']['client']
+            item_id = event['source']['id']
             project_name = AIresponsedata['suggestions']['projectName']
             a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
             config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
@@ -72,6 +74,7 @@ def box_webhook():
                         "Boxuserid": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
+                        "itemID": item_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
                         "BoxMetadataAttribute": f"Client: {client}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                         "BoxFolderID": folder_id,
@@ -97,6 +100,7 @@ def box_webhook():
     if event.get('trigger') == 'FILE.UPLOADED':
         print("File uploaded event received")
         user_id = event['created_by']['id']
+        item_id = event['source']['id']
         user_email = event['created_by']['login']
         file_name = event['source']['name']
         file_id = event['source']['id']
@@ -109,6 +113,7 @@ def box_webhook():
         data = {
             "data": [{
                 "Boxuserid": user_id,
+                "itemID": item_id,
                 "BoxFilename": file_name,
                 "BoxFileID": file_id,
                 "Boxenterpriseid": 1164695563,
@@ -143,6 +148,7 @@ def box_webhook():
                 AIresponsedata = AIresponse.json()
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 client = AIresponsedata['suggestions']['client']
+                item_id = event['source']['id']
                 project_name = AIresponsedata['suggestions']['projectName']
                 a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
                 config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
@@ -159,6 +165,7 @@ def box_webhook():
                         "Boxuserid": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
+                        "itemID": item_id,
                         "BoxMetadatatemplate" : MetadtaDataTemplate,
                         "BoxMetadataAttribute": f"Client: {client}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                         "BoxFolderID": folder_id,
