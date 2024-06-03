@@ -39,7 +39,7 @@ def box_webhook():
         folder_name = event['source']['parent']['name']
 
         Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
-                        , headers={"Authorization": "Bearer WS9bbCbDKYDVRulcw1f8ZzMJihUrOhdf"})
+                        , headers={"Authorization": "Bearer E4mTEIFoNK8hVFXwoiLdQncjF5GnVD3W"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
         Preview_count = Preview_response_data['preview_count']
@@ -47,7 +47,7 @@ def box_webhook():
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
         
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer WS9bbCbDKYDVRulcw1f8ZzMJihUrOhdf"})
+                        , headers={"Authorization": "Bearer E4mTEIFoNK8hVFXwoiLdQncjF5GnVD3W"})
         print(AIresponse.text)
             
         if AIresponse.status_code == 200:
@@ -134,7 +134,7 @@ def box_webhook():
             # Update metadata with AI insights
 
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer WS9bbCbDKYDVRulcw1f8ZzMJihUrOhdf"})
+                        , headers={"Authorization": "Bearer E4mTEIFoNK8hVFXwoiLdQncjF5GnVD3W"})
             print(AIresponse.text)
             
             if AIresponse.status_code == 200:
