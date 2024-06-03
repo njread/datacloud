@@ -12,7 +12,5 @@ requests==2.31.0
 urllib3==2.2.1
 werkzeug==3.0.3
 zipp==3.18.1
-Flask==2.0.3
-requests==2.26.0
 PyJWT==2.1.0
 cryptography==3.4.7
