@@ -90,7 +90,29 @@ def process_webhook(event):
             }
 
             response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
+        elif AIresponse.status_code == 503:
+            data = {
+                "data": [{
+                    "Boxuserid": user_id,
+                    "BoxFilename": file_name,
+                    "BoxFileID": file_id,
+                    "itemID": item_id,
+                    "BoxMetadatatemplate": "ContractAI",
+                    "BoxMetadataAttribute": f"Client:, Project Name:, Assessment and Planning:, Configuration and Setup:, Deliverables:, Client Specific Dependencies: , Project Personnel: , Total Estimated Service Fees: , Milestone or Deliverables: ",
+                    "BoxFolderID": folder_id,
+                    "BoxFoldername": folder_name,
+                    "Boxuser": user_email,
+                    "BoxCountOfPreviews": Preview_count
+                }]
+            }
 
+            headers = {
+                'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
+                'Content-Type': 'application/json'
+            }
+
+            response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
+            
             if response.status_code == 202:
                 print("Salesforce data cloud update success")
             else:
