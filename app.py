@@ -3,6 +3,7 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 import requests
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -18,17 +19,19 @@ except Exception as e:
     logging.error(f"Error loading environment variables: {e}")
     sys.exit(1)
 
-@app.route('/')
+@app.route('/', methods=['POST'])
 def index():
     print('POST request received')
     return 'Hello, Heroku App Is UP!'
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
-   
     event = request.json
-    
-    # Corrected key check to 'trigger'
+    thread = Thread(target=process_webhook, args=(event,))
+    thread.start()
+    return jsonify({'status': 'Webhook received'}), 202
+
+def process_webhook(event):
     if event.get('trigger') == 'FILE.PREVIEWED':
         item_id = event['source']['id']
         user_id = event['created_by']['id']
@@ -39,26 +42,24 @@ def box_webhook():
         folder_id = event['source']['parent']['id']
         folder_name = event['source']['parent']['name']
 
-        Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
-                        , headers={f"Authorization": "Bearer 2Z2AeEDPmo4fxQI8R3NSiXclLgaKUQ6T"})
+        Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}",
+                                        headers={"Authorization": "Bearer 2Z2AeEDPmo4fxQI8R3NSiXclLgaKUQ6T"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
 
         Preview_count = Preview_response_data['preview_count']
-        
+
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
-        
-        AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer esK8jlZIPHvGrTNWSGzvP5fKxOIT5OKj"})
+
+        AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
+                                  headers={"Authorization": "Bearer esK8jlZIPHvGrTNWSGzvP5fKxOIT5OKj"})
         print(AIresponse.text)
-            
+
         if AIresponse.status_code == 200:
             print(f"Metadata update successful: {AIresponse.text}")
-                #Make a DataCloud Entry of Metadata
             AIresponsedata = AIresponse.json()
             MetadtaDataTemplate = AIresponsedata['$templateKey']
             client = AIresponsedata['suggestions']['client']
-            item_id = event['source']['id']
             project_name = AIresponsedata['suggestions']['projectName']
             a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
             config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
@@ -68,36 +69,33 @@ def box_webhook():
             totalestimatedfees = AIresponsedata['suggestions']['totalEstimatedServiceFees']
             total_deliverables = AIresponsedata['suggestions']['milestoneOrDeliverables']
 
-
-
             data = {
-                        "data": [{
-                        "Boxuserid": user_id,
-                        "BoxFilename": file_name,
-                        "BoxFileID": file_id,
-                        "itemID": item_id,
-                        "BoxMetadatatemplate" : MetadtaDataTemplate,
-                        "BoxMetadataAttribute": f"Client: {client}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
-                        "BoxFolderID": folder_id,
-                        "BoxFoldername": folder_name, 
-                        "Boxuser": user_email,
-                        "BoxCountOfPreviews": Preview_count
-
-                    }]
-                }
+                "data": [{
+                    "Boxuserid": user_id,
+                    "BoxFilename": file_name,
+                    "BoxFileID": file_id,
+                    "itemID": item_id,
+                    "BoxMetadatatemplate": MetadtaDataTemplate,
+                    "BoxMetadataAttribute": f"Client: {client}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
+                    "BoxFolderID": folder_id,
+                    "BoxFoldername": folder_name,
+                    "Boxuser": user_email,
+                    "BoxCountOfPreviews": Preview_count
+                }]
+            }
 
             headers = {
-                    'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
-                    'Content-Type': 'application/json'
-                }
-        
+                'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
+                'Content-Type': 'application/json'
+            }
+
             response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
-        
+
             if response.status_code == 202:
-                return jsonify({'status': 'success'}), 202
+                print("Salesforce data cloud update success")
             else:
-                return jsonify({'status': 'error', 'message': response.text}), response.status_code
-        
+                print(f"Salesforce data cloud update error: {response.text}")
+
     if event.get('trigger') == 'FILE.UPLOADED':
         print("File uploaded event received")
         user_id = event['created_by']['id']
@@ -108,9 +106,9 @@ def box_webhook():
         uploaded_at = event['created_at']
         folder_id = event['source']['parent']['id']
         folder_name = event['source']['parent']['name']
-        
+
         print(f"User {user_id} uploaded file {file_name} file id {file_id} at {uploaded_at}")
-        
+
         data = {
             "data": [{
                 "Boxuserid": user_id,
@@ -126,30 +124,24 @@ def box_webhook():
             'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
             'Content-Type': 'application/json'
         }
-        
+
         response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
-        
+
         if response.status_code == 202:
-            logging.info('Salesforce data cloud update success')
+            print('Salesforce data cloud update success')
         else:
-            logging.error('Salesforce data cloud update error: ' + response.text)
-            return jsonify({'status': 'error', 'message': response.text}), response.status_code
+            print(f'Salesforce data cloud update error: {response.text}')
 
-        # Metadata update and script execution
         try:
-            # Update metadata with AI insights
-
-            AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer esK8jlZIPHvGrTNWSGzvP5fKxOIT5OKj"})
+            AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
+                                      headers={"Authorization": "Bearer esK8jlZIPHvGrTNWSGzvP5fKxOIT5OKj"})
             print(AIresponse.text)
-            
+
             if AIresponse.status_code == 200:
                 print(f"Metadata update successful: {AIresponse.text}")
-                #Make a DataCloud Entry of Metadata
                 AIresponsedata = AIresponse.json()
                 MetadtaDataTemplate = AIresponsedata['$templateKey']
                 client = AIresponsedata['suggestions']['client']
-                item_id = event['source']['id']
                 project_name = AIresponsedata['suggestions']['projectName']
                 a_and_p = AIresponsedata['suggestions']['assessmentAndPlanning']
                 config_and_setup = AIresponsedata['suggestions']['configurationAndSetup']
@@ -159,21 +151,18 @@ def box_webhook():
                 totalestimatedfees = AIresponsedata['suggestions']['totalEstimatedServiceFees']
                 total_deliverables = AIresponsedata['suggestions']['milestoneOrDeliverables']
 
-
-
                 data = {
-                        "data": [{
+                    "data": [{
                         "Boxuserid": user_id,
                         "BoxFilename": file_name,
                         "BoxFileID": file_id,
                         "itemID": item_id,
-                        "BoxMetadatatemplate" : MetadtaDataTemplate,
+                        "BoxMetadatatemplate": MetadtaDataTemplate,
                         "BoxMetadataAttribute": f"Client: {client}, Project Name: {project_name}, Assessment and Planning: {a_and_p}, Configuration and Setup: {config_and_setup}, Deliverables: {deliverables}, Client Specific Dependencies: {client_dependencies}, Project Personnel: {project_presonnel}, Total Estimated Service Fees: {totalestimatedfees}, Milestone or Deliverables: {total_deliverables}",
                         "BoxFolderID": folder_id,
-                        "BoxFoldername": folder_name, 
+                        "BoxFoldername": folder_name,
                         "Boxuser": user_email,
                         "BoxCountOfPreviews": "0",
-
                     }]
                 }
 
@@ -181,19 +170,14 @@ def box_webhook():
                     'Authorization': f'Bearer {SALESFORCE_DATA_CLOUD_ACCESS_TOKEN}',
                     'Content-Type': 'application/json'
                 }
-        
+
                 response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
-                
+
             else:
-                print(f"Metadata update failed:  {response.text}")
+                print(f"Metadata update failed: {AIresponse.text}")
 
         except Exception as e:
-            logging.error(f"Error in metadata update: {e}")
-            return jsonify({'status': 'error', 'message': str(e)}), 500
-        
-        return jsonify({'status': 'success'}), 202
-
-    return jsonify({'status': 'ignored'}), 200
+            print(f"Error in metadata update: {e}")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
