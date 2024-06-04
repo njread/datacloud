@@ -44,7 +44,7 @@ def box_webhook():
                         , headers={f"Authorization": "Bearer "+ BOX_TOKEN})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
-        
+
         Preview_count = Preview_response_data['preview_count']
         
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
@@ -94,10 +94,10 @@ def box_webhook():
         
             response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
         
-        if response.status_code == 202:
-            return jsonify({'status': 'success'}), 202
-        else:
-            return jsonify({'status': 'error', 'message': response.text}), response.status_code
+            if response.status_code == 202:
+                return jsonify({'status': 'success'}), 202
+            else:
+                return jsonify({'status': 'error', 'message': response.text}), response.status_code
         
     if event.get('trigger') == 'FILE.UPLOADED':
         print("File uploaded event received")
