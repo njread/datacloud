@@ -40,7 +40,7 @@ def box_webhook():
         folder_name = event['source']['parent']['name']
 
         Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
-                        , headers={f"Authorization": "Bearer esK8jlZIPHvGrTNWSGzvP5fKxOIT5OKj"})
+                        , headers={f"Authorization": "Bearer 2Z2AeEDPmo4fxQI8R3NSiXclLgaKUQ6T"})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
 
