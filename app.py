@@ -44,6 +44,7 @@ def box_webhook():
                         , headers={f"Authorization": "Bearer "+ BOX_TOKEN})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
+        
         Preview_count = Preview_response_data['preview_count']
         
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
@@ -81,7 +82,7 @@ def box_webhook():
                         "BoxFolderID": folder_id,
                         "BoxFoldername": folder_name, 
                         "Boxuser": user_email,
-                        "BoxCountOfPreviews": "0",
+                        "BoxCountOfPreviews": Preview_count
 
                     }]
                 }
