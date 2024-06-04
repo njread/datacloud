@@ -12,6 +12,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
     SALESFORCE_DATA_CLOUD_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
+    BOX_TOKEN = os.getenv('BOX_TOKEN')
     if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_DATA_CLOUD_ACCESS_TOKEN:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
@@ -40,7 +41,7 @@ def box_webhook():
         folder_name = event['source']['parent']['name']
 
         Preview_response = requests.get(url=f"https://api.box.com/2.0/file_access_stats/{file_id}"
-                        , headers={"Authorization": "Bearer z4CttPDLqWHZWj4t4FSKwyO0dK8qU5MJ"})
+                        , headers={f"Authorization": "Bearer "+ BOX_TOKEN})
         Preview_response_data = Preview_response.json()
         print(f"Preview response data: {Preview_response_data}")
         Preview_count = Preview_response_data['preview_count']
@@ -48,7 +49,7 @@ def box_webhook():
         print(f"User {user_id} previewed file {file_name} file id {file_id} with a preview count of {Preview_count}")
         
         AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer z4CttPDLqWHZWj4t4FSKwyO0dK8qU5MJ"})
+                        , headers={"Authorization": "Bearer " + BOX_TOKEN})
         print(AIresponse.text)
             
         if AIresponse.status_code == 200:
@@ -139,7 +140,7 @@ def box_webhook():
             # Update metadata with AI insights
 
             AIresponse = requests.get(url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental"
-                        , headers={"Authorization": "Bearer z4CttPDLqWHZWj4t4FSKwyO0dK8qU5MJ"})
+                        , headers={"Authorization": "Bearer "+ BOX_TOKEN})
             print(AIresponse.text)
             
             if AIresponse.status_code == 200:
