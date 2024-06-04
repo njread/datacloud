@@ -21,7 +21,7 @@ except Exception as e:
 @app.route('/')
 def index():
     print('POST request received')
-    return 'Hello, this is the home page of your Flask app running on Heroku!'
+    return 'Hello, Heroku App Is UP!'
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
