@@ -178,10 +178,13 @@ def process_webhook(event):
     else:
         logging.warning(f"No handler for trigger: {trigger}")
 
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['GET'])
 def index():
-    print('POST request received')
     return 'Hello, Heroku App Is UP!'
+
+@app.route('/favicon.ico')
+def favicon():
+    return '', 204
 
 @app.route('/box-webhook', methods=['POST'])
 def box_webhook():
