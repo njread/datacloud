@@ -62,11 +62,22 @@ def extract_contract_ai_attributes(suggestions):
         "Milestone or Deliverables": suggestions.get('milestoneOrDeliverables')
     }
 
-# Add more functions for other templates as needed
+def extract_project_management_ai_attributes(suggestions):
+    return {
+        "Project Manager": suggestions.get('projectManager'),
+        "Project Status": suggestions.get('projectStatus'),
+        "Start Date": suggestions.get('startDate'),
+        "End Date": suggestions.get('endDate'),
+        "Budget": suggestions.get('budget'),
+        "Resources": suggestions.get('resources'),
+        "Milestones": suggestions.get('milestones'),
+        "Risks": suggestions.get('risks')
+    }
 
 # Mapping of template keys to extraction functions
 template_extractors = {
     "contractAi": extract_contract_ai_attributes,
+    "projectManagementAi": extract_project_management_ai_attributes,
     # Add more mappings for other templates
 }
 
