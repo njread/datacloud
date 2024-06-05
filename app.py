@@ -8,7 +8,7 @@ from threading import Thread
 app = Flask(__name__)
 
 # Configure logging
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 # Environment Variables
 try:
