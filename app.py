@@ -24,15 +24,19 @@ except Exception as e:
 def get_preview_count(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/file_access_stats/{file_id}",
-        headers={"Authorization": "Bearer ZnDbXL5NMfEBzRL8tINCl56BaebhwKfU"}
+        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
     )
-    response_data = response.json()
-    return response_data.get('preview_count', 0)
+    if response.status_code == 200 and response.content:
+        response_data = response.json()
+        return response_data.get('preview_count', 0)
+    else:
+        logging.error(f"Error fetching preview count: {response.text}")
+        return 0
 
 def fetch_metadata_suggestions(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
-        headers={"Authorization": "Bearer ZnDbXL5NMfEBzRL8tINCl56BaebhwKfU"}
+        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
     )
     return response
 
@@ -43,6 +47,28 @@ def update_salesforce(data):
     }
     response = requests.post(SALESFORCE_DATA_CLOUD_ENDPOINT, json=data, headers=headers)
     return response
+
+# Template-specific extraction functions
+def extract_contract_ai_attributes(suggestions):
+    return {
+        "Client": suggestions.get('client'),
+        "Project Name": suggestions.get('projectName'),
+        "Assessment and Planning": suggestions.get('assessmentAndPlanning'),
+        "Configuration and Setup": suggestions.get('configurationAndSetup'),
+        "Deliverables": suggestions.get('deliverables'),
+        "Client Specific Dependencies": suggestions.get('clientspecificDependencies'),
+        "Project Personnel": suggestions.get('projectPersonnel'),
+        "Total Estimated Service Fees": suggestions.get('totalEstimatedServiceFees'),
+        "Milestone or Deliverables": suggestions.get('milestoneOrDeliverables')
+    }
+
+# Add more functions for other templates as needed
+
+# Mapping of template keys to extraction functions
+template_extractors = {
+    "contractAi": extract_contract_ai_attributes,
+    # Add more mappings for other templates
+}
 
 def process_preview_event(event):
     item_id = event['source']['id']
@@ -57,21 +83,14 @@ def process_preview_event(event):
     print(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
     ai_response = fetch_metadata_suggestions(file_id)
-    if ai_response.status_code == 200:
+    if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
         metadata_template = ai_data.get('$templateKey')
         suggestions = ai_data.get('suggestions', {})
-        metadata_attributes = {
-            "Client": suggestions.get('client'),
-            "Project Name": suggestions.get('projectName'),
-            "Assessment and Planning": suggestions.get('assessmentAndPlanning'),
-            "Configuration and Setup": suggestions.get('configurationAndSetup'),
-            "Deliverables": suggestions.get('deliverables'),
-            "Client Specific Dependencies": suggestions.get('clientspecificDependencies'),
-            "Project Personnel": suggestions.get('projectPersonnel'),
-            "Total Estimated Service Fees": suggestions.get('totalEstimatedServiceFees'),
-            "Milestone or Deliverables": suggestions.get('milestoneOrDeliverables')
-        }
+
+        # Select and call the appropriate extraction function
+        extractor = template_extractors.get(metadata_template, lambda x: {})
+        metadata_attributes = extractor(suggestions)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
     else:
         metadata_template = "ContractAI"
@@ -127,22 +146,16 @@ def process_upload_event(event):
         print(f'Salesforce data cloud update error: {response.text}')
 
     ai_response = fetch_metadata_suggestions(file_id)
-    if ai_response.status_code == 200:
+    if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
         metadata_template = ai_data.get('$templateKey')
         suggestions = ai_data.get('suggestions', {})
-        metadata_attributes = {
-            "Client": suggestions.get('client'),
-            "Project Name": suggestions.get('projectName'),
-            "Assessment and Planning": suggestions.get('assessmentAndPlanning'),
-            "Configuration and Setup": suggestions.get('configurationAndSetup'),
-            "Deliverables": suggestions.get('deliverables'),
-            "Client Specific Dependencies": suggestions.get('clientspecificDependencies'),
-            "Project Personnel": suggestions.get('projectPersonnel'),
-            "Total Estimated Service Fees": suggestions.get('totalEstimatedServiceFees'),
-            "Milestone or Deliverables": suggestions.get('milestoneOrDeliverables')
-        }
+
+        # Select and call the appropriate extraction function
+        extractor = template_extractors.get(metadata_template, lambda x: {})
+        metadata_attributes = extractor(suggestions)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
+        
         data = {
             "data": [{
                 "Boxuserid": user_id,
