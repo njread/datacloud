@@ -24,7 +24,7 @@ except Exception as e:
 def get_preview_count(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/file_access_stats/{file_id}",
-        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
+        headers={"Authorization": "Bearer ZnDbXL5NMfEBzRL8tINCl56BaebhwKfU"}
     )
     response_data = response.json()
     return response_data.get('preview_count', 0)
@@ -32,7 +32,7 @@ def get_preview_count(file_id):
 def fetch_metadata_suggestions(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
-        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
+        headers={"Authorization": "Bearer ZnDbXL5NMfEBzRL8tINCl56BaebhwKfU"}
     )
     return response
 
