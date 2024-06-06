@@ -43,6 +43,19 @@ def apply_metadata_to_file(file_id, metadata, template_key, token):
         logging.debug(f"Response status code: {response.status_code}")
         logging.debug(f"Request payload: {metadata}")
 
+def list_metadata_templates(token):
+    url = "https://api.box.com/2.0/metadata_templates/schema"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        templates = response.json()
+        logging.info(f"Available templates: {templates}")
+    else:
+        logging.error(f"Error listing metadata templates: {response.text}")
+
 # Template-specific extraction functions
 def extract_contract_ai_attributes(suggestions):
     return {

@@ -3,7 +3,7 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 from threading import Thread
-from utils import get_preview_count, fetch_metadata_suggestions, update_salesforce, apply_metadata_to_file, template_extractors
+from utils import get_preview_count, fetch_metadata_suggestions, update_salesforce, apply_metadata_to_file, template_extractors, list_metadata_templates
 
 app = Flask(__name__)
 
@@ -20,6 +20,8 @@ try:
 except Exception as e:
     logging.error(f"Error loading environment variables: {e}")
     sys.exit(1)
+
+list_metadata_templates(BOX_API_TOKEN)  # List templates at startup for verification
 
 def process_preview_event(event):
     item_id = event['source']['id']
