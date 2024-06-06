@@ -29,7 +29,7 @@ def update_salesforce(data, endpoint, access_token):
     return response
 
 def apply_metadata_to_file(file_id, metadata, template_key, token):
-    url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_27335/{template_key}"
+    url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
