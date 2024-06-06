@@ -77,6 +77,7 @@ def get_template_schema(template_key, token):
     if response.status_code == 200:
         schema = response.json()
         attribute_mapping = {field['displayName']: field['key'] for field in schema['fields']}
+        logging.info(f"Fetched template schema for {template_key}: {attribute_mapping}")
         return attribute_mapping
     else:
         logging.error(f"Error fetching metadata template schema: {response.text}")
@@ -84,29 +85,37 @@ def get_template_schema(template_key, token):
 
 # Template-specific extraction functions
 def extract_contract_ai_attributes(suggestions, schema):
-    return {
-        schema["Client"]: suggestions.get('client'),
-        schema["Project Name"]: suggestions.get('projectName'),
-        schema["Assessment and Planning"]: suggestions.get('assessmentAndPlanning'),
-        schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
-        schema["Deliverables"]: suggestions.get('deliverables'),
-        schema["Client Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
-        schema["Project Personnel"]: suggestions.get('projectPersonnel'),
-        schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
-        schema["Milestone or Deliverables"]: suggestions.get('milestoneOrDeliverables')
-    }
+    try:
+        return {
+            schema["Client"]: suggestions.get('client'),
+            schema["Project Name"]: suggestions.get('projectName'),
+            schema["Assessment and Planning"]: suggestions.get('assessmentAndPlanning'),
+            schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
+            schema["Deliverables"]: suggestions.get('deliverables'),
+            schema["Client Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
+            schema["Project Personnel"]: suggestions.get('projectPersonnel'),
+            schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
+            schema["Milestone or Deliverables"]: suggestions.get('milestoneOrDeliverables')
+        }
+    except KeyError as e:
+        logging.error(f"KeyError: {e} - Schema: {schema}")
+        return {}
 
 def extract_project_management_ai_attributes(suggestions, schema):
-    return {
-        schema["Project Manager"]: suggestions.get('projectManager'),
-        schema["Project Status"]: suggestions.get('projectStatus'),
-        schema["Start Date"]: suggestions.get('startDate'),
-        schema["End Date"]: suggestions.get('endDate'),
-        schema["Budget"]: suggestions.get('budget'),
-        schema["Resources"]: suggestions.get('resources'),
-        schema["Milestones"]: suggestions.get('milestones'),
-        schema["Risks"]: suggestions.get('risks')
-    }
+    try:
+        return {
+            schema["Project Manager"]: suggestions.get('projectManager'),
+            schema["Project Status"]: suggestions.get('projectStatus'),
+            schema["Start Date"]: suggestions.get('startDate'),
+            schema["End Date"]: suggestions.get('endDate'),
+            schema["Budget"]: suggestions.get('budget'),
+            schema["Resources"]: suggestions.get('resources'),
+            schema["Milestones"]: suggestions.get('milestones'),
+            schema["Risks"]: suggestions.get('risks')
+        }
+    except KeyError as e:
+        logging.error(f"KeyError: {e} - Schema: {schema}")
+        return {}
 
 # Mapping of template keys to extraction functions
 template_extractors = {
