@@ -4,7 +4,7 @@ import logging
 def get_preview_count(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/file_access_stats/{file_id}",
-        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
+        headers={"Authorization": "Bearer HHCPsFvvtufkKqH9Vb7EnjyAIB7AH2Nu"}
     )
     if response.status_code == 200 and response.content:
         response_data = response.json()
@@ -16,7 +16,7 @@ def get_preview_count(file_id):
 def fetch_metadata_suggestions(file_id):
     response = requests.get(
         url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
-        headers={"Authorization": "Bearer R58TdhQbsPkTmAQFBQJgjCjh1N5N77J8"}
+        headers={"Authorization": "Bearer HHCPsFvvtufkKqH9Vb7EnjyAIB7AH2Nu"}
     )
     return response
 
