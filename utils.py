@@ -1,10 +1,10 @@
 import requests
 import logging
 
-def get_preview_count(file_id):
+def get_preview_count(file_id, token):
     response = requests.get(
         url=f"https://api.box.com/2.0/file_access_stats/{file_id}",
-        headers={"Authorization": "Bearer GYs5hq12JKgV2gsZa216vUNS3euIHx2w"}
+        headers={"Authorization": f"Bearer {token}"}
     )
     if response.status_code == 200 and response.content:
         response_data = response.json()
@@ -13,10 +13,10 @@ def get_preview_count(file_id):
         logging.error(f"Error fetching preview count: {response.text}")
         return 0
 
-def fetch_metadata_suggestions(file_id):
+def fetch_metadata_suggestions(file_id, token):
     response = requests.get(
         url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
-        headers={"Authorization": "Bearer GYs5hq12JKgV2gsZa216vUNS3euIHx2w"}
+        headers={"Authorization": f"Bearer {token}"}
     )
     return response
 
@@ -27,6 +27,18 @@ def update_salesforce(data, endpoint, access_token):
     }
     response = requests.post(endpoint, json=data, headers=headers)
     return response
+
+def apply_metadata_to_file(file_id, metadata, template_key, token):
+    url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=metadata, headers=headers)
+    if response.status_code == 201:
+        logging.info(f"Metadata applied successfully to file {file_id}")
+    else:
+        logging.error(f"Error applying metadata to file {file_id}: {response.text}")
 
 # Template-specific extraction functions
 def extract_contract_ai_attributes(suggestions):
@@ -53,19 +65,10 @@ def extract_project_management_ai_attributes(suggestions):
         "Milestones": suggestions.get('milestones'),
         "Risks": suggestions.get('risks')
     }
-def sales_order_ai_attributes(suggestions):
-    return {
-        "Sales Order Number": suggestions.get('orderNumber'),
-        "Order Date": suggestions.get('invoiceNumber'),
-        "Customer Name": suggestions.get('address'),
-        "Customer Address": suggestions.get('invoiceDate'),
-        "Order Total": suggestions.get('total')
-    }
 
 # Mapping of template keys to extraction functions
 template_extractors = {
     "contractAi": extract_contract_ai_attributes,
     "projectManagementAi": extract_project_management_ai_attributes,
-    "aitest": sales_order_ai_attributes
     # Add more mappings for other templates
 }

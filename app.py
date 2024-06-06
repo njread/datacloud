@@ -3,7 +3,7 @@ import sys
 import logging
 from flask import Flask, request, jsonify
 from threading import Thread
-from utils import get_preview_count, fetch_metadata_suggestions, update_salesforce, template_extractors
+from utils import get_preview_count, fetch_metadata_suggestions, update_salesforce, apply_metadata_to_file, template_extractors
 
 app = Flask(__name__)
 
@@ -14,7 +14,8 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 try:
     SALESFORCE_DATA_CLOUD_ENDPOINT = os.getenv('SALESFORCE_DATA_CLOUD_ENDPOINT')
     SALESFORCE_DATA_CLOUD_ACCESS_TOKEN = os.getenv('SALESFORCE_ACCESS_TOKEN')
-    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_DATA_CLOUD_ACCESS_TOKEN:
+    BOX_API_TOKEN = os.getenv('BOX_API_TOKEN')  # Add your Box API token
+    if not SALESFORCE_DATA_CLOUD_ENDPOINT or not SALESFORCE_DATA_CLOUD_ACCESS_TOKEN or not BOX_API_TOKEN:
         raise ValueError("Missing necessary environment variables.")
 except Exception as e:
     logging.error(f"Error loading environment variables: {e}")
@@ -29,10 +30,10 @@ def process_preview_event(event):
     folder_id = event['source']['parent']['id']
     folder_name = event['source']['parent']['name']
 
-    preview_count = get_preview_count(file_id)
+    preview_count = get_preview_count(file_id, BOX_API_TOKEN)
     print(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
-    ai_response = fetch_metadata_suggestions(file_id)
+    ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
     if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
         metadata_template = ai_data.get('$templateKey')
@@ -42,6 +43,9 @@ def process_preview_event(event):
         extractor = template_extractors.get(metadata_template, lambda x: {})
         metadata_attributes = extractor(suggestions)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
+
+        # Apply metadata to the file in Box
+        apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
     else:
         metadata_template = "ContractAI"
         metadata_str = "Client:, Project Name:, Assessment and Planning:, Configuration and Setup:, Deliverables:, Client Specific Dependencies:, Project Personnel:, Total Estimated Service Fees:, Milestone or Deliverables:"
@@ -95,7 +99,7 @@ def process_upload_event(event):
     else:
         print(f'Salesforce data cloud update error: {response.text}')
 
-    ai_response = fetch_metadata_suggestions(file_id)
+    ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
     if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
         metadata_template = ai_data.get('$templateKey')
@@ -105,6 +109,9 @@ def process_upload_event(event):
         extractor = template_extractors.get(metadata_template, lambda x: {})
         metadata_attributes = extractor(suggestions)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
+
+        # Apply metadata to the file in Box
+        apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
         
         data = {
             "data": [{
