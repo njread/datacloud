@@ -89,13 +89,13 @@ def extract_contract_ai_attributes(suggestions, schema):
         return {
             schema["Client"]: suggestions.get('client'),
             schema["Project Name"]: suggestions.get('projectName'),
-            schema["Assessment and Planning"]: suggestions.get('assessmentAndPlanning'),
+            schema["Assessment And Planning"]: suggestions.get('assessmentAndPlanning'),
             schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
             schema["Deliverables"]: suggestions.get('deliverables'),
-            schema["Client Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
+            schema["Client-Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
             schema["Project Personnel"]: suggestions.get('projectPersonnel'),
             schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
-            schema["Milestone or Deliverables"]: suggestions.get('milestoneOrDeliverables')
+            schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables')
         }
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {schema}")
