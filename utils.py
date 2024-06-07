@@ -1,6 +1,21 @@
 import requests
 import logging
 
+def get_available_templates(token):
+    url = "https://api.box.com/2.0/metadata_templates/enterprise_964447513"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        templates = response.json()
+        return [template['templateKey'] for template in templates['entries']]
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error fetching metadata templates: {e}")
+        return []
+
 def get_preview_count(file_id, token):
     try:
         response = requests.get(
@@ -14,18 +29,20 @@ def get_preview_count(file_id, token):
         logging.error(f"Error fetching preview count: {e}")
         return 0
 
-def fetch_metadata_suggestions(file_id, token):
-    try:
-        response = requests.get(
-            url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key=contractAi&confidence=experimental",
-            headers={"Authorization": f"Bearer {token}"}
-        )
-        response.raise_for_status()
-        logging.info(f"Metadata suggestions fetched: {response.json()}")
-        return response
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching metadata suggestions: {e}")
-        return requests.Response()
+def fetch_metadata_suggestions(file_id, token, templates):
+    for template_key in templates:
+        try:
+            response = requests.get(
+                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            if response.json().get('suggestions'):
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
+                return response, template_key
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
+    return None, None
 
 def update_salesforce(data, endpoint, access_token):
     try:

@@ -10,7 +10,8 @@ from utils import (
     apply_metadata_to_file,
     template_extractors,
     list_metadata_templates,
-    get_template_schema
+    get_template_schema,
+    get_available_templates
 )
 
 app = Flask(__name__)
@@ -65,11 +66,12 @@ def process_event(event, event_type):
         data['data'][0]["BoxCountOfPreviews"] = preview_count
         logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
-    ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
-    if ai_response.status_code == 200 and ai_response.content:
+    available_templates = get_available_templates(BOX_API_TOKEN)
+    ai_response, metadata_template = fetch_metadata_suggestions(file_id, BOX_API_TOKEN, available_templates)
+
+    if ai_response and ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
         logging.info(f"AI response: {ai_data}")
-        metadata_template = ai_data.get('$templateKey')
         logging.info(f"Metadata template key: {metadata_template}")
         suggestions = ai_data.get('suggestions', {})
 
@@ -86,7 +88,7 @@ def process_event(event, event_type):
             "BoxMetadataAttribute": metadata_str
         })
     else:
-        logging.error(f"Failed to fetch metadata suggestions for file {file_id}: {ai_response.text}")
+        logging.error(f"Failed to fetch metadata suggestions for file {file_id}")
 
     response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
     if response.status_code == 202:
