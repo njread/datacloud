@@ -68,6 +68,7 @@ def process_event(event, event_type):
     ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
     if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
+        logging.info(f"AI response: {ai_data}")
         metadata_template = ai_data.get('$templateKey')
         suggestions = ai_data.get('suggestions', {})
 

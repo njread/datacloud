@@ -21,6 +21,7 @@ def fetch_metadata_suggestions(file_id, token):
             headers={"Authorization": f"Bearer {token}"}
         )
         response.raise_for_status()
+        logging.info(f"Metadata suggestions fetched: {response.json()}")
         return response
     except requests.exceptions.RequestException as e:
         logging.error(f"Error fetching metadata suggestions: {e}")
@@ -101,22 +102,6 @@ def extract_contract_ai_attributes(suggestions, schema):
         logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
 
-def extract_project_management_ai_attributes(suggestions, schema):
-    try:
-        return {
-            schema["Project Manager"]: suggestions.get('projectManager'),
-            schema["Project Status"]: suggestions.get('projectStatus'),
-            schema["Start Date"]: suggestions.get('startDate'),
-            schema["End Date"]: suggestions.get('endDate'),
-            schema["Budget"]: suggestions.get('budget'),
-            schema["Resources"]: suggestions.get('resources'),
-            schema["Milestones"]: suggestions.get('milestones'),
-            schema["Risks"]: suggestions.get('risks')
-        }
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
-        return {}
-
 def extract_sales_order_ai_attributes(suggestions, schema):
     try:
         return {
@@ -133,7 +118,6 @@ def extract_sales_order_ai_attributes(suggestions, schema):
 # Mapping of template keys to extraction functions
 template_extractors = {
     "contractAi": extract_contract_ai_attributes,
-    "projectManagementAi": extract_project_management_ai_attributes,
-    "aitest": extract_sales_order_ai_attributes,
+    "salesOrderAi": extract_sales_order_ai_attributes,
     # Add more mappings for other templates
 }
