@@ -70,6 +70,7 @@ def process_event(event, event_type):
         ai_data = ai_response.json()
         logging.info(f"AI response: {ai_data}")
         metadata_template = ai_data.get('$templateKey')
+        logging.info(f"Metadata template key: {metadata_template}")
         suggestions = ai_data.get('suggestions', {})
 
         if metadata_template not in template_schemas:
