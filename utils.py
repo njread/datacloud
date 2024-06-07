@@ -117,9 +117,23 @@ def extract_project_management_ai_attributes(suggestions, schema):
         logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
 
+def extract_sales_order_ai_attributes(suggestions, schema):
+    try:
+        return {
+            schema["Order Number"]: suggestions.get('orderNumber'),
+            schema["Invoice Number"]: suggestions.get('invoiceNumber'),
+            schema["Address"]: suggestions.get('address'),
+            schema["INVOICE DATE"]: suggestions.get('invoiceDate'),
+            schema["Total"]: suggestions.get('total'),
+        }
+    except KeyError as e:
+        logging.error(f"KeyError: {e} - Schema: {schema}")
+        return {}
+
 # Mapping of template keys to extraction functions
 template_extractors = {
     "contractAi": extract_contract_ai_attributes,
     "projectManagementAi": extract_project_management_ai_attributes,
+    "aitest": extract_sales_order_ai_attributes,
     # Add more mappings for other templates
 }
