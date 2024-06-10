@@ -80,8 +80,10 @@ def process_event(event, event_type):
 
         schema = template_schemas[metadata_template]
         extractor = template_extractors.get(metadata_template, lambda x, y: {})
+        logging.info(f"Using extractor for template {metadata_template}")
         metadata_attributes = extractor(suggestions, schema)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
+        logging.info(f"Extracted metadata attributes: {metadata_attributes}")
         apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
         data['data'][0].update({
             "BoxMetadatatemplate": metadata_template,

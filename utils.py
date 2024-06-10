@@ -141,6 +141,7 @@ def extract_contract_ai_attributes(suggestions, schema):
 # Mapping of template keys to extraction functions
 template_extractors = {
     "contractAi": extract_contract_ai_attributes,
+    "projectManagementAi": extract_project_management_ai_attributes,
     "salesOrderAi": extract_sales_order_ai_attributes,
     # Add more mappings for other templates
 }
