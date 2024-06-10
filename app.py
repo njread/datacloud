@@ -42,17 +42,16 @@ list_metadata_templates(BOX_API_TOKEN)  # List templates at startup for verifica
 # Cache for template schemas to avoid repeated API calls
 template_schemas = {}
 
-def process_upload_event(event):
+def process_event(event, event_type):
     user_id = event['created_by']['id']
     item_id = event['source']['id']
     user_email = event['created_by']['login']
     file_name = event['source']['name']
     file_id = event['source']['id']
-    uploaded_at = event['created_at']
     folder_id = event['source']['parent']['id']
     folder_name = event['source']['parent']['name']
 
-    logging.info(f"User {user_id} uploaded file {file_name} (ID: {file_id}) at {uploaded_at}")
+    logging.info(f"User {user_id} triggered {event_type} event for file {file_name} (ID: {file_id})")
 
     # Default data to send to Salesforce
     data = {
@@ -66,16 +65,16 @@ def process_upload_event(event):
         }]
     }
 
-    response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
-    if response.status_code == 202:
-        logging.info('Salesforce data cloud update success')
-    else:
-        logging.error(f'Salesforce data cloud update error: {response.text}')
+    if event_type == 'preview':
+        preview_count = get_preview_count(file_id, BOX_API_TOKEN)
+        data['data'][0]["BoxCountOfPreviews"] = preview_count
+        logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
-    ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
-    if ai_response.status_code == 200 and ai_response.content:
+    ai_response, metadata_template = fetch_metadata_suggestions(file_id, BOX_API_TOKEN, get_available_templates(BOX_API_TOKEN))
+    if ai_response and ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
-        metadata_template = ai_data.get('$templateKey')
+        logging.info(f"AI response: {ai_data}")
+        logging.info(f"Metadata template key: {metadata_template}")
         suggestions = ai_data.get('suggestions', {})
 
         if metadata_template not in template_schemas:
@@ -102,13 +101,12 @@ def process_upload_event(event):
             "BoxFoldername": folder_name,
             "Boxuser": user_email,
         })
-        response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
-        if response.status_code == 202:
-            logging.info("Salesforce data cloud update success")
-        else:
-            logging.error(f"Salesforce data cloud update error: {response.text}")
+
+    response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
+    if response.status_code == 202:
+        logging.info("Salesforce data cloud update success")
     else:
-        logging.error(f"Metadata update failed: {ai_response.text}")
+        logging.error(f"Salesforce data cloud update error: {response.text}")
 
 def process_webhook(event):
     trigger_handlers = {
