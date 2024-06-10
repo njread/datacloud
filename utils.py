@@ -100,6 +100,42 @@ def get_template_schema(template_key, token):
     else:
         logging.error(f"Error fetching metadata template schema: {response.text}")
         return {}
+    
+def is_metadata_template_applied(file_id, template_key, token):
+    url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return True, response.json()
+    elif response.status_code == 404:
+        return False, None
+    else:
+        logging.error(f"Error checking metadata template: {response.text}")
+        return False, None
+    
+def update_metadata(file_id, new_metadata, template_key, token):
+    url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json-patch+json"
+    }
+
+    # Generate JSON Patch operations
+    patch_operations = []
+    for key, value in new_metadata.items():
+        patch_operations.append({"op": "test", "path": f"/{key}", "value": value})
+        patch_operations.append({"op": "replace", "path": f"/{key}", "value": value})
+
+    logging.info(f"Updating metadata for file {file_id} with template {template_key}: {patch_operations}")
+    response = requests.put(url, json=patch_operations, headers=headers)
+    if response.status_code == 200:
+        logging.info(f"Metadata updated successfully for file {file_id}")
+    else:
+        logging.error(f"Error updating metadata for file {file_id}: {response.text}")
+
 
 # Template-specific extraction functions
 def extract_order_form_ai_attributes(suggestions, schema):

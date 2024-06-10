@@ -11,6 +11,8 @@ from utils import (
     template_extractors,
     list_metadata_templates,
     get_template_schema,
+    update_metadata,
+    is_metadata_template_applied,
     get_available_templates
 )
 
@@ -40,39 +42,40 @@ list_metadata_templates(BOX_API_TOKEN)  # List templates at startup for verifica
 # Cache for template schemas to avoid repeated API calls
 template_schemas = {}
 
-def process_event(event, event_type):
-    item_id = event['source']['id']
+def process_upload_event(event):
     user_id = event['created_by']['id']
+    item_id = event['source']['id']
     user_email = event['created_by']['login']
     file_name = event['source']['name']
     file_id = event['source']['id']
+    uploaded_at = event['created_at']
     folder_id = event['source']['parent']['id']
     folder_name = event['source']['parent']['name']
+
+    logging.info(f"User {user_id} uploaded file {file_name} (ID: {file_id}) at {uploaded_at}")
+
+    # Default data to send to Salesforce
     data = {
         "data": [{
             "Boxuserid": user_id,
+            "itemID": item_id,
             "BoxFilename": file_name,
             "BoxFileID": file_id,
-            "itemID": item_id,
-            "BoxFolderID": folder_id,
-            "BoxFoldername": folder_name,
-            "Boxuser": user_email,
-            "BoxCountOfPreviews": 0  # Default value
+            "Boxenterpriseid": 1164695563,
+            "BoxCountOfPreviews": 0,
         }]
     }
 
-    if event_type == 'preview':
-        preview_count = get_preview_count(file_id, BOX_API_TOKEN)
-        data['data'][0]["BoxCountOfPreviews"] = preview_count
-        logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
+    response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
+    if response.status_code == 202:
+        logging.info('Salesforce data cloud update success')
+    else:
+        logging.error(f'Salesforce data cloud update error: {response.text}')
 
-    available_templates = get_available_templates(BOX_API_TOKEN)
-    ai_response, metadata_template = fetch_metadata_suggestions(file_id, BOX_API_TOKEN, available_templates)
-
-    if ai_response and ai_response.status_code == 200 and ai_response.content:
+    ai_response = fetch_metadata_suggestions(file_id, BOX_API_TOKEN)
+    if ai_response.status_code == 200 and ai_response.content:
         ai_data = ai_response.json()
-        logging.info(f"AI response: {ai_data}")
-        logging.info(f"Metadata template key: {metadata_template}")
+        metadata_template = ai_data.get('$templateKey')
         suggestions = ai_data.get('suggestions', {})
 
         if metadata_template not in template_schemas:
@@ -80,23 +83,32 @@ def process_event(event, event_type):
 
         schema = template_schemas[metadata_template]
         extractor = template_extractors.get(metadata_template, lambda x, y: {})
-        logging.info(f"Using extractor for template {metadata_template}")
         metadata_attributes = extractor(suggestions, schema)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
-        logging.info(f"Extracted metadata attributes: {metadata_attributes}")
-        apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+
+        # Check if metadata template is already applied
+        is_applied, existing_metadata = is_metadata_template_applied(file_id, metadata_template, BOX_API_TOKEN)
+        if is_applied:
+            logging.info(f"Metadata template {metadata_template} already applied to file {file_id}. Updating metadata.")
+            update_metadata(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+        else:
+            logging.info(f"Metadata template {metadata_template} not applied to file {file_id}. Applying metadata.")
+            apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+
         data['data'][0].update({
             "BoxMetadatatemplate": metadata_template,
-            "BoxMetadataAttribute": metadata_str
+            "BoxMetadataAttribute": metadata_str,
+            "BoxFolderID": folder_id,
+            "BoxFoldername": folder_name,
+            "Boxuser": user_email,
         })
+        response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
+        if response.status_code == 202:
+            logging.info("Salesforce data cloud update success")
+        else:
+            logging.error(f"Salesforce data cloud update error: {response.text}")
     else:
-        logging.error(f"Failed to fetch metadata suggestions for file {file_id}")
-
-    response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
-    if response.status_code == 202:
-        logging.info("Salesforce data cloud update success")
-    else:
-        logging.error(f"Salesforce data cloud update error: {response.text}")
+        logging.error(f"Metadata update failed: {ai_response.text}")
 
 def process_webhook(event):
     trigger_handlers = {
