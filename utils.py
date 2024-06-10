@@ -94,7 +94,7 @@ def get_template_schema(template_key, token):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         schema = response.json()
-        attribute_mapping = {field['displayName'].strip(): field['key'] for field in schema['fields']}
+        attribute_mapping = {field['displayName'].strip().lower(): field['key'] for field in schema['fields']}
         logging.info(f"Fetched template schema for {template_key}: {attribute_mapping}")
         return attribute_mapping
     else:
@@ -105,12 +105,14 @@ def get_template_schema(template_key, token):
 def extract_sales_order_ai_attributes(suggestions, schema):
     logging.info(f"Extracting sales order AI attributes: suggestions={suggestions}, schema={schema}")
     try:
+        normalized_suggestions = {k.strip().lower(): v for k, v in suggestions.items()}
+        logging.info(f"Normalized suggestions: {normalized_suggestions}")
         extracted_attributes = {
-            schema["Order Number"]: suggestions.get('orderNumber'),
-            schema["Invoice Number"]: suggestions.get('invoiceNumber'),
-            schema["Address"]: suggestions.get('address'),
-            schema["INVOICE DATE"]: suggestions.get('invoiceDate'),
-            schema["Total"]: suggestions.get('total'),
+            schema["order number"]: normalized_suggestions.get('order number'),
+            schema["invoice number"]: normalized_suggestions.get('invoice number'),
+            schema["address"]: normalized_suggestions.get('address'),
+            schema["invoice date"]: normalized_suggestions.get('invoice date'),
+            schema["total"]: normalized_suggestions.get('total'),
         }
         logging.info(f"Extracted sales order AI attributes: {extracted_attributes}")
         return extracted_attributes
@@ -121,16 +123,18 @@ def extract_sales_order_ai_attributes(suggestions, schema):
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
+        normalized_suggestions = {k.strip().lower(): v for k, v in suggestions.items()}
+        logging.info(f"Normalized suggestions: {normalized_suggestions}")
         extracted_attributes = {
-            schema["Client"]: suggestions.get('client'),
-            schema["Project Name"]: suggestions.get('projectName'),
-            schema["Assessment And Planning"]: suggestions.get('assessmentAndPlanning'),
-            schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
-            schema["Deliverables"]: suggestions.get('deliverables'),
-            schema["Client-Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
-            schema["Project Personnel"]: suggestions.get('projectPersonnel'),
-            schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
-            schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables')
+            schema["client"]: normalized_suggestions.get('client'),
+            schema["project name"]: normalized_suggestions.get('project name'),
+            schema["assessment and planning"]: normalized_suggestions.get('assessment and planning'),
+            schema["configuration and setup"]: normalized_suggestions.get('configuration and setup'),
+            schema["deliverables"]: normalized_suggestions.get('deliverables'),
+            schema["client-specific dependencies"]: normalized_suggestions.get('client-specific dependencies'),
+            schema["project personnel"]: normalized_suggestions.get('project personnel'),
+            schema["total estimated service fees"]: normalized_suggestions.get('total estimated service fees'),
+            schema["milestone or deliverables"]: normalized_suggestions.get('milestone or deliverables')
         }
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
