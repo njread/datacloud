@@ -85,6 +85,27 @@ def list_metadata_templates(token):
     except requests.exceptions.RequestException as e:
         logging.error(f"Error listing metadata templates: {e}")
 
+def calculate_filled_percentage(suggestions, schema):
+    total_fields = len(schema)
+    filled_fields = sum(1 for key in schema.values() if suggestions.get(key) is not None)
+    return filled_fields / total_fields if total_fields > 0 else 0
+
+def fetch_all_metadata_suggestions(file_id, token, templates):
+    all_suggestions = []
+    for template_key in templates:
+        try:
+            response = requests.get(
+                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            if response.json().get('suggestions'):
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
+                all_suggestions.append((template_key, response.json()))
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
+    return all_suggestions
+
 def get_template_schema(template_key, token):
     url = f"https://api.box.com/2.0/metadata_templates/enterprise_964447513/{template_key}/schema"
     headers = {
