@@ -1,21 +1,6 @@
 import requests
 import logging
 
-def get_available_templates(token):
-    url = "https://api.box.com/2.0/metadata_templates/enterprise_964447513"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()
-        templates = response.json()
-        return [template['templateKey'] for template in templates['entries']]
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching metadata templates: {e}")
-        return []
-
 def get_preview_count(file_id, token):
     try:
         response = requests.get(
@@ -94,7 +79,7 @@ def get_template_schema(template_key, token):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         schema = response.json()
-        attribute_mapping = {field['displayName']: field['key'] for field in schema['fields']}
+        attribute_mapping = {field['displayName'].strip(): field['key'] for field in schema['fields']}
         logging.info(f"Fetched template schema for {template_key}: {attribute_mapping}")
         return attribute_mapping
     else:
@@ -102,6 +87,19 @@ def get_template_schema(template_key, token):
         return {}
 
 # Template-specific extraction functions
+def extract_sales_order_ai_attributes(suggestions, schema):
+    try:
+        return {
+            schema["Order Number"]: suggestions.get('orderNumber'),
+            schema["Invoice Number"]: suggestions.get('invoiceNumber'),
+            schema["Address"]: suggestions.get('address'),
+            schema["INVOICE DATE"]: suggestions.get('invoiceDate'),
+            schema["Total"]: suggestions.get('total'),
+        }
+    except KeyError as e:
+        logging.error(f"KeyError: {e} - Schema: {schema}")
+        return {}
+
 def extract_contract_ai_attributes(suggestions, schema):
     try:
         return {
@@ -114,19 +112,6 @@ def extract_contract_ai_attributes(suggestions, schema):
             schema["Project Personnel"]: suggestions.get('projectPersonnel'),
             schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
             schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables')
-        }
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
-        return {}
-
-def extract_sales_order_ai_attributes(suggestions, schema):
-    try:
-        return {
-            schema["Order Number"]: suggestions.get('orderNumber'),
-            schema["Invoice Number"]: suggestions.get('invoiceNumber'),
-            schema["Address"]: suggestions.get('address'),
-            schema["INVOICE DATE"]: suggestions.get('invoiceDate'),
-            schema["Total"]: suggestions.get('total'),
         }
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {schema}")
