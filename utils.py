@@ -103,21 +103,25 @@ def get_template_schema(template_key, token):
 
 # Template-specific extraction functions
 def extract_sales_order_ai_attributes(suggestions, schema):
+    logging.info(f"Extracting sales order AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        return {
+        extracted_attributes = {
             schema["Order Number"]: suggestions.get('orderNumber'),
             schema["Invoice Number"]: suggestions.get('invoiceNumber'),
             schema["Address"]: suggestions.get('address'),
             schema["INVOICE DATE"]: suggestions.get('invoiceDate'),
             schema["Total"]: suggestions.get('total'),
         }
+        logging.info(f"Extracted sales order AI attributes: {extracted_attributes}")
+        return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
 
 def extract_contract_ai_attributes(suggestions, schema):
+    logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        return {
+        extracted_attributes = {
             schema["Client"]: suggestions.get('client'),
             schema["Project Name"]: suggestions.get('projectName'),
             schema["Assessment And Planning"]: suggestions.get('assessmentAndPlanning'),
@@ -128,6 +132,8 @@ def extract_contract_ai_attributes(suggestions, schema):
             schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
             schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables')
         }
+        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
+        return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
