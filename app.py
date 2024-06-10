@@ -10,7 +10,8 @@ from utils import (
     apply_metadata_to_file,
     template_extractors,
     list_metadata_templates,
-    get_template_schema
+    get_template_schema,
+    get_available_templates
 )
 
 app = Flask(__name__)
