@@ -105,41 +105,55 @@ def get_template_schema(template_key, token):
 def extract_sales_order_ai_attributes(suggestions, schema):
     logging.info(f"Extracting sales order AI attributes: suggestions={suggestions}, schema={schema}")
     try:
+        # Normalize the suggestion keys
         normalized_suggestions = {k.strip().lower(): v for k, v in suggestions.items()}
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
+
+        # Ensure schema keys are also normalized
+        normalized_schema = {k.strip().lower(): v for k, v in schema.items()}
+        logging.info(f"Normalized schema: {normalized_schema}")
+
+        # Extract attributes using normalized keys
         extracted_attributes = {
-            schema["order number"]: normalized_suggestions.get('order number'),
-            schema["invoice number"]: normalized_suggestions.get('invoice number'),
-            schema["address"]: normalized_suggestions.get('address'),
-            schema["invoice date"]: normalized_suggestions.get('invoice date'),
-            schema["total"]: normalized_suggestions.get('total'),
+            normalized_schema["order number"]: normalized_suggestions.get('order number'),
+            normalized_schema["invoice number"]: normalized_suggestions.get('invoice number'),
+            normalized_schema["address"]: normalized_suggestions.get('address'),
+            normalized_schema["invoice date"]: normalized_suggestions.get('invoice date'),
+            normalized_schema["total"]: normalized_suggestions.get('total'),
         }
         logging.info(f"Extracted sales order AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
+        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
+        # Normalize the suggestion keys
         normalized_suggestions = {k.strip().lower(): v for k, v in suggestions.items()}
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
+
+        # Ensure schema keys are also normalized
+        normalized_schema = {k.strip().lower(): v for k, v in schema.items()}
+        logging.info(f"Normalized schema: {normalized_schema}")
+
+        # Extract attributes using normalized keys
         extracted_attributes = {
-            schema["client"]: normalized_suggestions.get('client'),
-            schema["project name"]: normalized_suggestions.get('project name'),
-            schema["assessment and planning"]: normalized_suggestions.get('assessment and planning'),
-            schema["configuration and setup"]: normalized_suggestions.get('configuration and setup'),
-            schema["deliverables"]: normalized_suggestions.get('deliverables'),
-            schema["client-specific dependencies"]: normalized_suggestions.get('client-specific dependencies'),
-            schema["project personnel"]: normalized_suggestions.get('project personnel'),
-            schema["total estimated service fees"]: normalized_suggestions.get('total estimated service fees'),
-            schema["milestone or deliverables"]: normalized_suggestions.get('milestone or deliverables')
+            normalized_schema["client"]: normalized_suggestions.get('client'),
+            normalized_schema["project name"]: normalized_suggestions.get('project name'),
+            normalized_schema["assessment and planning"]: normalized_suggestions.get('assessment and planning'),
+            normalized_schema["configuration and setup"]: normalized_suggestions.get('configuration and setup'),
+            normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
+            normalized_schema["client-specific dependencies"]: normalized_suggestions.get('client-specific dependencies'),
+            normalized_schema["project personnel"]: normalized_suggestions.get('project personnel'),
+            normalized_schema["total estimated service fees"]: normalized_suggestions.get('total estimated service fees'),
+            normalized_schema["milestone or deliverables"]: normalized_suggestions.get('milestone or deliverables')
         }
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
+        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
 # Mapping of template keys to extraction functions
