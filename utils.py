@@ -206,7 +206,10 @@ def extract_contract_ai_attributes(suggestions, schema):
             normalized_schema["clientspecificdependencies"]: normalized_suggestions.get('clientspecificdependencies'),
             normalized_schema["projectpersonnel"]: normalized_suggestions.get('projectpersonnel'),
             normalized_schema["totalestimatedservicefees"]: normalized_suggestions.get('totalestimatedservicefees'),
-            normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables')
+            normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables'),
+            normalized_schema["contracttype"]: normalized_suggestions.get('contracttype'),
+            normalized_schema["contracteffectivedate"]: normalized_suggestions.get('contracteffectivedate'),
+            normalized_schema["contractmasterserviceagreement"]: normalized_suggestions.get('contractmasterserviceagreement'),
         }
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
