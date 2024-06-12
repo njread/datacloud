@@ -147,16 +147,19 @@ def update_metadata(file_id, new_metadata, template_key, token):
     # Generate JSON Patch operations
     patch_operations = []
     for key, value in new_metadata.items():
-        patch_operations.append({"op": "test", "path": f"/{key}", "value": value})
-        patch_operations.append({"op": "replace", "path": f"/{key}", "value": value})
+        if value is not None:  # Only include non-None values
+            patch_operations.append({"op": "test", "path": f"/{key}", "value": value})
+            patch_operations.append({"op": "replace", "path": f"/{key}", "value": value})
+        else:
+            patch_operations.append({"op": "remove", "path": f"/{key}"})  # Remove the key if the value is None
 
     logging.info(f"Updating metadata for file {file_id} with template {template_key}: {patch_operations}")
-    response = requests.put(url, json=patch_operations, headers=headers)
-    if response.status_code == 200:
+    try:
+        response = requests.put(url, json=patch_operations, headers=headers)
+        response.raise_for_status()
         logging.info(f"Metadata updated successfully for file {file_id}")
-    else:
-        logging.error(f"Error updating metadata for file {file_id}: {response.text}")
-
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error updating metadata for file {file_id}: {e}")
 
 # Template-specific extraction functions
 def extract_order_form_ai_attributes(suggestions, schema):

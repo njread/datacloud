@@ -62,7 +62,6 @@ def process_event(event, event_type):
             "itemID": item_id,
             "BoxFilename": file_name,
             "BoxFileID": file_id,
-            "BoxFileID_Text": file_id,
             "Boxenterpriseid": 1164695563,
             "BoxCountOfPreviews": 0,
         }]
@@ -115,7 +114,6 @@ def process_event(event, event_type):
             "BoxMetadatatemplate": metadata_template,
             "BoxMetadataAttribute": metadata_str,
             "BoxFolderID": folder_id,
-            "BoxFolderID_Text": folder_id,
             "BoxFoldername": folder_name,
             "Boxuser": user_email,
         })
