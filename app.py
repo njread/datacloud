@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from threading import Thread
 from utils import (
     get_preview_count,
-    fetch_metadata_suggestions,
+    fetch_all_metadata_suggestions,
     update_salesforce,
     apply_metadata_to_file,
     template_extractors,
