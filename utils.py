@@ -203,7 +203,6 @@ def extract_contract_ai_attributes(suggestions, schema):
             normalized_schema["assessmentandplanning"]: normalized_suggestions.get('assessmentandplanning'),
             normalized_schema["configurationandsetup"]: normalized_suggestions.get('configurationandsetup'),
             normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
-            normalized_schema["clientspecificdependencies"]: normalized_suggestions.get('clientspecificdependencies'),
             normalized_schema["projectpersonnel"]: normalized_suggestions.get('projectpersonnel'),
             normalized_schema["totalestimatedservicefees"]: normalized_suggestions.get('totalestimatedservicefees'),
             normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables'),
