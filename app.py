@@ -5,7 +5,7 @@ from flask import Flask, request, jsonify
 from threading import Thread
 from utils import (
     get_preview_count,
-    fetch_all_metadata_suggestions,
+    fetch_metadata_suggestions_via_ai,
     update_salesforce,
     apply_metadata_to_file,
     template_extractors,
@@ -14,8 +14,7 @@ from utils import (
     update_metadata,
     is_metadata_template_applied,
     get_available_templates,
-    calculate_filled_percentage,
-    fetch_all_metadata_suggestions
+    calculate_filled_percentage
 )
 
 app = Flask(__name__)
@@ -74,26 +73,31 @@ def process_event(event, event_type):
         logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
     available_templates = get_available_templates(BOX_API_TOKEN)
-    all_suggestions = fetch_all_metadata_suggestions(file_id, BOX_API_TOKEN, available_templates)
-
     best_template_key = None
     best_template_suggestions = None
     highest_percentage_filled = 0
 
-    for template_key, ai_data in all_suggestions:
-        suggestions = ai_data.get('suggestions', {})
-        if template_key not in template_schemas:
-            template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
+    for template_key in available_templates:
+        # Define the prompt for AI extraction
+        prompt = "\"fields\":[{\"type\":\"string\",\"key\":\"name\",\"displayName\":\"Name\",\"description\":\"The customer name\",\"prompt\":\"Name is always the first word in the document\"},{\"type\":\"date\",\"key\":\"last_contacted_at\",\"displayName\":\"Last Contacted At\",\"description\":\"When this customer was last contacted at\"}]"
 
-        schema = template_schemas[template_key]
-        filled_percentage = calculate_filled_percentage(suggestions, schema)
+        ai_data = fetch_metadata_suggestions_via_ai(BOX_API_TOKEN, file_id, prompt)
 
-        logging.info(f"Template {template_key} has {filled_percentage*100}% fields filled.")
+        if ai_data and 'answer' in ai_data:
+            suggestions = ai_data['answer']
+            suggestions = eval(suggestions)  # Convert string representation of dict to actual dict
+            if template_key not in template_schemas:
+                template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
 
-        if filled_percentage > highest_percentage_filled:
-            highest_percentage_filled = filled_percentage
-            best_template_key = template_key
-            best_template_suggestions = suggestions
+            schema = template_schemas[template_key]
+            filled_percentage = calculate_filled_percentage(suggestions, schema)
+
+            logging.info(f"Template {template_key} has {filled_percentage*100}% fields filled.")
+
+            if filled_percentage > highest_percentage_filled:
+                highest_percentage_filled = filled_percentage
+                best_template_key = template_key
+                best_template_suggestions = suggestions
 
     if best_template_key and best_template_suggestions:
         metadata_template = best_template_key

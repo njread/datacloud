@@ -29,20 +29,43 @@ def get_preview_count(file_id, token):
         logging.error(f"Error fetching preview count: {e}")
         return 0
 
-def fetch_metadata_suggestions(file_id, token, templates):
-    for template_key in templates:
-        try:
-            response = requests.get(
-                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            response.raise_for_status()
-            if response.json().get('suggestions'):
-                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
-                return response, template_key
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
-    return None, None
+def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
+    url = "https://api.box.com/2.0/ai/extract"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "prompt": prompt,
+        "items": [
+            {
+                "type": "file",
+                "id": file_id
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error extracting AI metadata: {e}")
+        return None
+
+def generate_prompt_from_template(template_key, token):
+    schema = get_template_schema(template_key, token)
+    fields = []
+    for display_name, key in schema.items():
+        description = ""  # You can fetch descriptions from the metadata schema if available
+        fields.append({
+            "type": "string",
+            "key": key,
+            "displayName": display_name,
+            "description": description,
+            "prompt": f"The {display_name} in the document"
+        })
+    return {"fields": fields}
 
 def update_salesforce(data, endpoint, access_token):
     try:
@@ -115,7 +138,7 @@ def get_template_schema(template_key, token):
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
         schema = response.json()
-        attribute_mapping = {field['displayName'].strip().lower(): field['key'] for field in schema['fields']}
+        attribute_mapping = {field['displayName'].strip(): field['key'] for field in schema['fields']}
         logging.info(f"Fetched template schema for {template_key}: {attribute_mapping}")
         return attribute_mapping
     else:
@@ -191,32 +214,25 @@ def extract_order_form_ai_attributes(suggestions, schema):
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces
-        normalized_suggestions = {k.strip().replace(' ', '').lower(): v for k, v in suggestions.items()}
-        logging.info(f"Normalized suggestions: {normalized_suggestions}")
-
-        # Normalize the schema keys to lowercase without spaces
-        normalized_schema = {k.strip().replace(' ', '').lower(): v for k, v in schema.items()}
-        logging.info(f"Normalized schema: {normalized_schema}")
-
-        # Extract attributes using normalized keys
+        # Extract attributes using schema keys
         extracted_attributes = {
-            normalized_schema["client"]: normalized_suggestions.get('client'),
-            normalized_schema["projectname"]: normalized_suggestions.get('projectname'),
-            normalized_schema["assessmentandplanning"]: normalized_suggestions.get('assessmentandplanning'),
-            normalized_schema["configurationandsetup"]: normalized_suggestions.get('configurationandsetup'),
-            normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
-            normalized_schema["projectpersonnel"]: normalized_suggestions.get('projectpersonnel'),
-            normalized_schema["totalestimatedservicefees"]: normalized_suggestions.get('totalestimatedservicefees'),
-            normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables'),
-            normalized_schema["contracttype"]: normalized_suggestions.get('contracttype'),
-            normalized_schema["contracteffectivedate"]: normalized_suggestions.get('contracteffectivedate'),
-            normalized_schema["contractmasterserviceagreement"]: normalized_suggestions.get('contractmasterserviceagreement'),
+            schema["Contract Type"]: suggestions.get('contractType'),
+            schema["Contract Effective Date"]: suggestions.get('contractEffectiveDate'),
+            schema["Contract Master Service Agreement"]: suggestions.get('contractMasterServiceAgreement'),
+            schema["Client"]: suggestions.get('client'),
+            schema["Project Name"]: suggestions.get('projectName'),
+            schema["Assessment And Planning"]: suggestions.get('assessmentAndPlanning'),
+            schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
+            schema["Deliverables"]: suggestions.get('deliverables'),
+            schema["Client-Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
+            schema["Project Personnel"]: suggestions.get('projectPersonnel'),
+            schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
+            schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables'),
         }
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+        logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
 
 
@@ -226,4 +242,3 @@ template_extractors = {
     "aitest": extract_order_form_ai_attributes,
     # Add more mappings for other templates
 }
-
