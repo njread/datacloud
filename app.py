@@ -4,6 +4,7 @@ import logging
 import requests
 from flask import Flask, request, jsonify
 from threading import Thread
+import json
 from utils import (
     get_preview_count,
     fetch_all_metadata_suggestions,
@@ -88,7 +89,7 @@ def process_event(event, event_type):
         ai_response = fetch_metadata_suggestions_via_ai(BOX_API_TOKEN, file_id, prompt)
 
         if ai_response and ai_response.get('answer'):
-            suggestions = ai_response['answer']
+            suggestions = json.loads(ai_response['answer'])
             if template_key not in template_schemas:
                 template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
 
