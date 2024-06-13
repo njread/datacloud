@@ -221,12 +221,12 @@ def extract_order_form_ai_attributes(suggestions, schema):
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces
-        normalized_suggestions = {k.strip().replace(' ', '').lower(): v for k, v in suggestions.items()}
+        # Normalize the suggestion keys to lowercase without spaces or hyphens
+        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        # Normalize the schema keys to lowercase without spaces
-        normalized_schema = {k.strip().replace(' ', '').lower(): v for k, v in schema.items()}
+        # Normalize the schema keys to lowercase without spaces or hyphens
+        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
         logging.info(f"Normalized schema: {normalized_schema}")
 
         # Extract attributes using normalized keys and filter out None values
@@ -253,6 +253,7 @@ def extract_contract_ai_attributes(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
+
 
 
 # Mapping of template keys to extraction functions
