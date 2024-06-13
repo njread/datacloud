@@ -221,25 +221,37 @@ def extract_order_form_ai_attributes(suggestions, schema):
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Extract attributes using schema keys
+        # Normalize the suggestion keys to lowercase without spaces
+        normalized_suggestions = {k.strip().replace(' ', '').lower(): v for k, v in suggestions.items()}
+        logging.info(f"Normalized suggestions: {normalized_suggestions}")
+
+        # Normalize the schema keys to lowercase without spaces
+        normalized_schema = {k.strip().replace(' ', '').lower(): v for k, v in schema.items()}
+        logging.info(f"Normalized schema: {normalized_schema}")
+
+        # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            schema["Contract Type"]: suggestions.get('contractType'),
-            schema["Contract Effective Date"]: suggestions.get('contractEffectiveDate'),
-            schema["Contract Master Service Agreement"]: suggestions.get('contractMasterServiceAgreement'),
-            schema["Client"]: suggestions.get('client'),
-            schema["Project Name"]: suggestions.get('projectName'),
-            schema["Assessment And Planning"]: suggestions.get('assessmentAndPlanning'),
-            schema["Configuration and Setup"]: suggestions.get('configurationAndSetup'),
-            schema["Deliverables"]: suggestions.get('deliverables'),
-            schema["Client-Specific Dependencies"]: suggestions.get('clientspecificDependencies'),
-            schema["Project Personnel"]: suggestions.get('projectPersonnel'),
-            schema["Total Estimated Service Fees"]: suggestions.get('totalEstimatedServiceFees'),
-            schema["Milestone Or Deliverables"]: suggestions.get('milestoneOrDeliverables'),
+            normalized_schema["contracttype"]: normalized_suggestions.get('contracttype'),
+            normalized_schema["contracteffectivedate"]: normalized_suggestions.get('contracteffectivedate'),
+            normalized_schema["contractmasterserviceagreement"]: normalized_suggestions.get('contractmasterserviceagreement'),
+            normalized_schema["client"]: normalized_suggestions.get('client'),
+            normalized_schema["projectname"]: normalized_suggestions.get('projectname'),
+            normalized_schema["assessmentandplanning"]: normalized_suggestions.get('assessmentandplanning'),
+            normalized_schema["configurationandsetup"]: normalized_suggestions.get('configurationandsetup'),
+            normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
+            normalized_schema["clientspecificdependencies"]: normalized_suggestions.get('clientspecificdependencies'),
+            normalized_schema["projectpersonnel"]: normalized_suggestions.get('projectpersonnel'),
+            normalized_schema["totalestimatedservicefees"]: normalized_suggestions.get('totalestimatedservicefees'),
+            normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables')
         }
+
+        # Remove keys with None values
+        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
+
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
+        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
 
