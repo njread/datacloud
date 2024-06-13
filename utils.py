@@ -1,5 +1,6 @@
 import requests
 import logging
+import json
 
 def get_available_templates(token):
     url = "https://api.box.com/2.0/metadata_templates/enterprise_964447513"
@@ -29,6 +30,8 @@ def get_preview_count(file_id, token):
         logging.error(f"Error fetching preview count: {e}")
         return 0
 
+import json
+
 def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
     url = "https://api.box.com/2.0/ai/extract"
     headers = {
@@ -36,7 +39,7 @@ def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
         "Content-Type": "application/json"
     }
     data = {
-        "prompt": prompt,
+        "prompt": json.dumps(prompt),
         "items": [
             {
                 "type": "file",
@@ -68,8 +71,7 @@ def generate_prompt_from_template(template_key, token):
             "description": description,
             "prompt": f"{display_name} is in the document"
         })
-    prompt = {"fields": fields}
-    return prompt
+    return {"fields": fields}
 
 
 def update_salesforce(data, endpoint, access_token):
