@@ -1,11 +1,12 @@
 import os
 import sys
 import logging
+import requests
 from flask import Flask, request, jsonify
 from threading import Thread
 from utils import (
     get_preview_count,
-    fetch_metadata_suggestions_via_ai,
+    fetch_all_metadata_suggestions,
     update_salesforce,
     apply_metadata_to_file,
     template_extractors,
@@ -15,7 +16,7 @@ from utils import (
     is_metadata_template_applied,
     get_available_templates,
     calculate_filled_percentage,
-    fetch_all_metadata_suggestions,
+    fetch_metadata_suggestions_via_ai,
     generate_prompt_from_template
 )
 
