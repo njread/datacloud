@@ -46,26 +46,31 @@ def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
     }
 
     try:
+        logging.info(f"Sending AI metadata extraction request with payload: {data}")
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         logging.error(f"Error extracting AI metadata: {e}")
+        logging.error(f"Request payload: {data}")
         return None
+
 
 def generate_prompt_from_template(template_key, token):
     schema = get_template_schema(template_key, token)
     fields = []
     for display_name, key in schema.items():
-        description = ""  # You can fetch descriptions from the metadata schema if available
+        description = f"The {display_name.lower()} in the document"
         fields.append({
             "type": "string",
             "key": key,
             "displayName": display_name,
             "description": description,
-            "prompt": f"The {display_name} in the document"
+            "prompt": f"{display_name} is in the document"
         })
-    return {"fields": fields}
+    prompt = {"fields": fields}
+    return prompt
+
 
 def update_salesforce(data, endpoint, access_token):
     try:
