@@ -14,7 +14,9 @@ from utils import (
     update_metadata,
     is_metadata_template_applied,
     get_available_templates,
-    calculate_filled_percentage
+    calculate_filled_percentage,
+    fetch_all_metadata_suggestions,
+    generate_prompt_from_template
 )
 
 app = Flask(__name__)
@@ -73,19 +75,19 @@ def process_event(event, event_type):
         logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
     available_templates = get_available_templates(BOX_API_TOKEN)
+    # Filter templates to only use those in the template_extractors
+    available_templates = [template for template in available_templates if template in template_extractors]
+
     best_template_key = None
     best_template_suggestions = None
     highest_percentage_filled = 0
 
     for template_key in available_templates:
-        # Define the prompt for AI extraction
-        prompt = "\"fields\":[{\"type\":\"string\",\"key\":\"name\",\"displayName\":\"Name\",\"description\":\"The customer name\",\"prompt\":\"Name is always the first word in the document\"},{\"type\":\"date\",\"key\":\"last_contacted_at\",\"displayName\":\"Last Contacted At\",\"description\":\"When this customer was last contacted at\"}]"
+        prompt = generate_prompt_from_template(template_key, BOX_API_TOKEN)
+        ai_response = fetch_metadata_suggestions_via_ai(BOX_API_TOKEN, file_id, prompt)
 
-        ai_data = fetch_metadata_suggestions_via_ai(BOX_API_TOKEN, file_id, prompt)
-
-        if ai_data and 'answer' in ai_data:
-            suggestions = ai_data['answer']
-            suggestions = eval(suggestions)  # Convert string representation of dict to actual dict
+        if ai_response and ai_response.get('answer'):
+            suggestions = ai_response['answer']
             if template_key not in template_schemas:
                 template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
 
