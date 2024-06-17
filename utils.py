@@ -12,6 +12,7 @@ def get_available_templates(token):
         response = requests.get(url, headers=headers)
         response.raise_for_status()
         templates = response.json()
+        logging.info(f"Available templates: {templates}")
         return [template['templateKey'] for template in templates['entries']]
     except requests.exceptions.RequestException as e:
         logging.error(f"Error fetching metadata templates: {e}")
@@ -29,8 +30,6 @@ def get_preview_count(file_id, token):
     except requests.exceptions.RequestException as e:
         logging.error(f"Error fetching preview count: {e}")
         return 0
-
-
 
 def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
     url = "https://api.box.com/2.0/ai/extract"
@@ -58,7 +57,6 @@ def fetch_metadata_suggestions_via_ai(token, file_id, prompt):
         logging.error(f"Request payload: {data}")
         return None
 
-
 def generate_prompt_from_template(template_key, token):
     schema = get_template_schema(template_key, token)
     fields = []
@@ -71,8 +69,8 @@ def generate_prompt_from_template(template_key, token):
             "description": description,
             "prompt": f"{display_name} is in the document"
         })
+    logging.info(f"Generated prompt for template {template_key}: {fields}")
     return {"fields": fields}
-
 
 def update_salesforce(data, endpoint, access_token):
     try:
@@ -123,17 +121,15 @@ def calculate_filled_percentage(suggestions, schema):
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
     for template_key in templates:
-        try:
-            response = requests.get(
-                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            response.raise_for_status()
-            if response.json().get('suggestions'):
-                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
-                all_suggestions.append((template_key, response.json()))
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
+        prompt = generate_prompt_from_template(template_key, token)
+        ai_response = fetch_metadata_suggestions_via_ai(token, file_id, prompt)
+        if ai_response:
+            suggestions = ai_response.get('answer')
+            if suggestions:
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
+                all_suggestions.append((template_key, suggestions))
+        else:
+            logging.error(f"Error fetching metadata suggestions for template {template_key}")
     return all_suggestions
 
 def get_template_schema(template_key, token):
@@ -151,7 +147,7 @@ def get_template_schema(template_key, token):
     else:
         logging.error(f"Error fetching metadata template schema: {response.text}")
         return {}
-    
+
 def is_metadata_template_applied(file_id, template_key, token):
     url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
     headers = {
@@ -166,7 +162,7 @@ def is_metadata_template_applied(file_id, template_key, token):
     else:
         logging.error(f"Error checking metadata template: {response.text}")
         return False, None
-    
+
 def update_metadata(file_id, new_metadata, template_key, token):
     url = f"https://api.box.com/2.0/files/{file_id}/metadata/enterprise_964447513/{template_key}"
     headers = {
@@ -217,7 +213,6 @@ def extract_order_form_ai_attributes(suggestions, schema):
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
-
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
@@ -253,9 +248,9 @@ def extract_contract_ai_attributes(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-    
+
 def extract_uber_ai_attributes(suggestions, schema):
-    logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
+    logging.info(f"Extracting Uber AI attributes: suggestions={suggestions}, schema={schema}")
     try:
         # Normalize the suggestion keys to lowercase without spaces or hyphens
         normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
@@ -267,27 +262,27 @@ def extract_uber_ai_attributes(suggestions, schema):
 
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            normalized_schema["restaurantName"]: normalized_suggestions.get('contracttype'),
-            normalized_schema["commissionFee"]: normalized_suggestions.get('contracteffectivedate'),
-            normalized_schema["termAndTermination"]: normalized_suggestions.get('contractmasterserviceagreement'),
-            normalized_schema["intellectualProperty"]: normalized_suggestions.get('client'),
-            normalized_schema["confidentiality"]: normalized_suggestions.get('projectname'),
-            normalized_schema["indemnification"]: normalized_suggestions.get('assessmentandplanning'),
-            normalized_schema["governingLaw"]: normalized_suggestions.get('configurationandsetup'),
-            normalized_schema["entireAgreement"]: normalized_suggestions.get('deliverables')
+            normalized_schema["restaurantname"]: normalized_suggestions.get('restaurantname'),
+            normalized_schema["commissionfee"]: normalized_suggestions.get('commissionfee'),
+            normalized_schema["termandtermination"]: normalized_suggestions.get('termandtermination'),
+            normalized_schema["intellectualproperty"]: normalized_suggestions.get('intellectualproperty'),
+            normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
+            normalized_schema["indemnification"]: normalized_suggestions.get('indemnification'),
+            normalized_schema["governinglaw"]: normalized_suggestions.get('governinglaw'),
+            normalized_schema["entireagreement"]: normalized_suggestions.get('entireagreement')
         }
 
         # Remove keys with None values
         extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
 
-        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-    
+
 def extract_nike_contract_ai_attributes(suggestions, schema):
-    logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
+    logging.info(f"Extracting Nike Contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
         # Normalize the suggestion keys to lowercase without spaces or hyphens
         normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
@@ -299,22 +294,22 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
 
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            normalized_schema["contractDate"]: normalized_suggestions.get('contractDate'),
-            normalized_schema["athleteName"]: normalized_suggestions.get('athleteName'),
-            normalized_schema["agreementTerms"]: normalized_suggestions.get('agreementTerms'),
-            normalized_schema["servicesToBeRendered"]: normalized_suggestions.get('servicesToBeRendered'),
+            normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
+            normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
+            normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
+            normalized_schema["servicestoberendered"]: normalized_suggestions.get('servicestoberendered'),
             normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
-            normalized_schema["commissionOnPlayersSignatureProducts"]: normalized_suggestions.get('commissionOnPlayersSignatureProducts'),
-            normalized_schema["canUsePlayersNameAndLikeness"]: normalized_suggestions.get('canUsePlayersNameAndLikeness'),
+            normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
+            normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
             normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
             normalized_schema["termination"]: normalized_suggestions.get('termination'),
-            normalized_schema["performanceBonuses"]: normalized_suggestions.get('performanceBonuses'),
+            normalized_schema["performancebonuses"]: normalized_suggestions.get('performancebonuses'),
         }
 
         # Remove keys with None values
         extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
 
-        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted Nike Contract AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
