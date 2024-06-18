@@ -77,31 +77,25 @@ def process_event(event, event_type):
         logging.info(f"User {user_id} previewed file {file_name} (ID: {file_id}) with a preview count of {preview_count}")
 
     available_templates = get_available_templates(BOX_API_TOKEN)
-    # Filter templates to only use those in the template_extractors
-    available_templates = [template for template in available_templates if template in template_extractors]
+    all_suggestions = fetch_all_metadata_suggestions(file_id, BOX_API_TOKEN, available_templates)
 
     best_template_key = None
     best_template_suggestions = None
     highest_percentage_filled = 0
 
-    for template_key in available_templates:
-        prompt = generate_prompt_from_template(template_key, BOX_API_TOKEN)
-        ai_response = fetch_metadata_suggestions_via_ai(BOX_API_TOKEN, file_id, prompt)
+    for template_key, suggestions in all_suggestions:
+        if template_key not in template_schemas:
+            template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
 
-        if ai_response and ai_response.get('answer'):
-            suggestions = json.loads(ai_response['answer'])
-            if template_key not in template_schemas:
-                template_schemas[template_key] = get_template_schema(template_key, BOX_API_TOKEN)
+        schema = template_schemas[template_key]
+        filled_percentage = calculate_filled_percentage(suggestions, schema)
 
-            schema = template_schemas[template_key]
-            filled_percentage = calculate_filled_percentage(suggestions, schema)
+        logging.info(f"Template {template_key} has {filled_percentage*100}% fields filled.")
 
-            logging.info(f"Template {template_key} has {filled_percentage*100}% fields filled.")
-
-            if filled_percentage > highest_percentage_filled:
-                highest_percentage_filled = filled_percentage
-                best_template_key = template_key
-                best_template_suggestions = suggestions
+        if filled_percentage > highest_percentage_filled:
+            highest_percentage_filled = filled_percentage
+            best_template_key = template_key
+            best_template_suggestions = suggestions
 
     if best_template_key and best_template_suggestions:
         metadata_template = best_template_key
@@ -133,7 +127,7 @@ def process_event(event, event_type):
         logging.info("Salesforce data cloud update success")
     else:
         logging.error(f"Salesforce data cloud update error: {response.text}")
-
+        
 def process_webhook(event):
     trigger_handlers = {
         'FILE.PREVIEWED': lambda e: process_event(e, 'preview'),

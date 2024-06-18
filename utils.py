@@ -91,13 +91,20 @@ def apply_metadata_to_file(file_id, metadata, template_key, token):
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    logging.info(f"Applying metadata to file {file_id} with template {template_key}: {metadata}")
+    
+    # Ensure metadata values are properly escaped and handle special characters
+    escaped_metadata = {k: v.replace("\n", "\\n").replace("u00b7", "\u2022") if isinstance(v, str) else v for k, v in metadata.items()}
+    
+    logging.info(f"Applying metadata to file {file_id} with template {template_key}: {escaped_metadata}")
+    
     try:
-        response = requests.post(url, json=metadata, headers=headers)
+        response = requests.post(url, json=escaped_metadata, headers=headers)
         response.raise_for_status()
         logging.info(f"Metadata applied successfully to file {file_id}")
     except requests.exceptions.RequestException as e:
         logging.error(f"Error applying metadata to file {file_id}: {e}")
+        logging.error(f"Response: {e.response.text}")
+        logging.error(f"Payload: {escaped_metadata}")
 
 def list_metadata_templates(token):
     url = "https://api.box.com/2.0/metadata_templates/schema"
@@ -281,8 +288,9 @@ def extract_uber_ai_attributes(suggestions, schema):
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
+# Update the extract_nike_contract_ai_attributes function similarly
 def extract_nike_contract_ai_attributes(suggestions, schema):
-    logging.info(f"Extracting Nike Contract AI attributes: suggestions={suggestions}, schema={schema}")
+    logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
         # Normalize the suggestion keys to lowercase without spaces or hyphens
         normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
@@ -309,7 +317,7 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
         # Remove keys with None values
         extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
 
-        logging.info(f"Extracted Nike Contract AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
