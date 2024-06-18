@@ -128,15 +128,20 @@ def calculate_filled_percentage(suggestions, schema):
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
     for template_key in templates:
-        prompt = generate_prompt_from_template(template_key, token)
-        ai_response = fetch_metadata_suggestions_via_ai(token, file_id, prompt)
-        if ai_response:
-            suggestions = ai_response.get('answer')
-            if suggestions:
-                logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
-                all_suggestions.append((template_key, suggestions))
-        else:
-            logging.error(f"Error fetching metadata suggestions for template {template_key}")
+        if template_key not in template_extractors:
+            logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
+            continue
+        try:
+            response = requests.get(
+                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            if response.json().get('suggestions'):
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
+                all_suggestions.append((template_key, response.json().get('suggestions')))
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
     return all_suggestions
 
 def get_template_schema(template_key, token):

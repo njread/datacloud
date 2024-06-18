@@ -90,7 +90,7 @@ def process_event(event, event_type):
         schema = template_schemas[template_key]
         filled_percentage = calculate_filled_percentage(suggestions, schema)
 
-        logging.info(f"Template {template_key} has {filled_percentage*100}% fields filled.")
+        logging.info(f"Template {template_key} has {filled_percentage * 100}% fields filled.")
 
         if filled_percentage > highest_percentage_filled:
             highest_percentage_filled = filled_percentage
@@ -127,7 +127,7 @@ def process_event(event, event_type):
         logging.info("Salesforce data cloud update success")
     else:
         logging.error(f"Salesforce data cloud update error: {response.text}")
-        
+
 def process_webhook(event):
     trigger_handlers = {
         'FILE.PREVIEWED': lambda e: process_event(e, 'preview'),
