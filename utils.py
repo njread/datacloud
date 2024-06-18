@@ -358,6 +358,7 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
             normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
             normalized_schema["termination"]: normalized_suggestions.get('termination'),
             normalized_schema["performancebonuses"]: normalized_suggestions.get('performancebonuses'),
+            normalized_schema["paymentterms"]: normalized_suggestions.get('paymentterms'),
         }
 
         # Remove keys with None values
