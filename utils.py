@@ -351,13 +351,10 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
             normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
             normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
             normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
-            normalized_schema["servicestoberendered"]: normalized_suggestions.get('servicestoberendered'),
             normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
             normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
             normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
-            normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
             normalized_schema["termination"]: normalized_suggestions.get('termination'),
-            normalized_schema["performancebonuses"]: normalized_suggestions.get('performancebonuses'),
             normalized_schema["paymentterms"]: normalized_suggestions.get('paymentterms'),
             normalized_schema["contractstartdate"]: normalized_suggestions.get('contractstartdate'),
             normalized_schema["contractenddate"]: normalized_suggestions.get('contractenddate'),
@@ -375,7 +372,7 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
-    #"contractAi": extract_contract_ai_attributes,
+    "contractAi": extract_contract_ai_attributes,
     "aitest": extract_order_form_ai_attributes,
     #"uberaiextract": extract_uber_ai_attributes,
     "nikeplayercontrat": extract_nike_contract_ai_attributes,
