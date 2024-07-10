@@ -98,43 +98,52 @@ def process_event(event, event_type):
             highest_percentage_filled = filled_percentage
             best_template_key = template_key
             best_template_suggestions = suggestions
-        
+
         # Check if template is over 80% filled
         if filled_percentage >= 0.80:
             templates_to_apply.append((template_key, suggestions))
 
-    if best_template_key and best_template_suggestions:
-        templates_to_apply.append((best_template_key, best_template_suggestions))
+        if best_template_key and best_template_suggestions:
+            templates_to_apply.append((best_template_key, best_template_suggestions))
 
-    for metadata_template, best_template_suggestions in templates_to_apply:
-        schema = template_schemas[metadata_template]
-        extractor = template_extractors.get(metadata_template, lambda x, y: {})
-        metadata_attributes = extractor(best_template_suggestions, schema)
-        metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
+        for metadata_template, best_template_suggestions in templates_to_apply:
+            schema = template_schemas[metadata_template]
+            extractor = template_extractors.get(metadata_template, lambda x, y: {})
+        
+        # Normalize suggestions based on schema
+            normalized_suggestions = {}
+            for key, value in best_template_suggestions.items():
+                normalized_key = schema.get(key.lower())
+                if normalized_key:
+                    normalized_suggestions[normalized_key] = value
+                else:
+                    logging.warning(f"Key {key} not found in schema {schema}")
+
+            metadata_attributes = extractor(normalized_suggestions, schema)
+            metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
 
         # Check if metadata template is already applied
-        is_applied, existing_metadata = is_metadata_template_applied(file_id, metadata_template, BOX_API_TOKEN)
-        if is_applied:
-            logging.info(f"Metadata template {metadata_template} already applied to file {file_id}. Updating metadata.")
-            update_metadata(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+            is_applied, existing_metadata = is_metadata_template_applied(file_id, metadata_template, BOX_API_TOKEN)
+            if is_applied:
+                logging.info(f"Metadata template {metadata_template} already applied to file {file_id}. Updating metadata.")
+                update_metadata(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+            else:
+                logging.info(f"Metadata template {metadata_template} not applied to file {file_id}. Applying metadata.")
+                apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
+
+            data['data'][0].update({
+                "BoxMetadatatemplate": metadata_template,
+                "BoxMetadataAttribute": metadata_str,
+                "BoxFolderID": folder_id,
+                "BoxFolderID_Text": folder_id,
+                "BoxFoldername": folder_name,
+                "Boxuser": user_email,})
+
+        response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
+        if response.status_code == 202:
+            logging.info("Salesforce data cloud update success")
         else:
-            logging.info(f"Metadata template {metadata_template} not applied to file {file_id}. Applying metadata.")
-            apply_metadata_to_file(file_id, metadata_attributes, metadata_template, BOX_API_TOKEN)
-
-        data['data'][0].update({
-            "BoxMetadatatemplate": metadata_template,
-            "BoxMetadataAttribute": metadata_str,
-            "BoxFolderID": folder_id,
-            "BoxFolderID_Text": folder_id,
-            "BoxFoldername": folder_name,
-            "Boxuser": user_email,
-        })
-
-    response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
-    if response.status_code == 202:
-        logging.info("Salesforce data cloud update success")
-    else:
-        logging.error(f"Salesforce data cloud update error: {response.text}")
+            logging.error(f"Salesforce data cloud update error: {response.text}")
 
 def process_webhook(event):
     trigger_handlers = {
