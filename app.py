@@ -4,6 +4,7 @@ import logging
 import requests
 from flask import Flask, request, jsonify
 from threading import Thread
+import json
 from utils import (
     get_preview_count,
     fetch_all_metadata_suggestions,
@@ -17,8 +18,7 @@ from utils import (
     get_available_templates,
     calculate_filled_percentage,
     fetch_metadata_suggestions_via_ai,
-    generate_prompt_from_template,
-    extract_attributes  # Ensure this is imported
+    generate_prompt_from_template
 )
 
 app = Flask(__name__)
@@ -107,9 +107,20 @@ def process_event(event, event_type):
 
     for metadata_template, best_template_suggestions in templates_to_apply:
         schema = template_schemas[metadata_template]
-        extractor = template_extractors.get(metadata_template, extract_attributes)  # Use the default extractor
+        extractor = template_extractors.get(metadata_template, lambda x, y: {})
+        
+        # Normalize suggestions and schema based on keys
+        normalized_suggestions = {}
+        schema_lower = {k.lower(): v for k, v in schema.items()}
+        
+        for key, value in best_template_suggestions.items():
+            normalized_key = schema_lower.get(key.lower())
+            if normalized_key:
+                normalized_suggestions[normalized_key] = value
+            else:
+                logging.warning(f"Key {key} not found in schema {schema_lower}")
 
-        metadata_attributes = extractor(best_template_suggestions, schema)
+        metadata_attributes = extractor(normalized_suggestions, schema)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
 
         # Check if metadata template is already applied
