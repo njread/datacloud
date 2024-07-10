@@ -109,18 +109,8 @@ def process_event(event, event_type):
         schema = template_schemas[metadata_template]
         extractor = template_extractors.get(metadata_template, lambda x, y: {})
         
-        # Normalize suggestions and schema based on keys
-        normalized_suggestions = {}
-        schema_lower = {k.lower(): v for k, v in schema.items()}
-        
-        for key, value in best_template_suggestions.items():
-            normalized_key = schema_lower.get(key.lower())
-            if normalized_key:
-                normalized_suggestions[normalized_key] = value
-            else:
-                logging.warning(f"Key {key} not found in schema {schema_lower}")
-
-        metadata_attributes = extractor(normalized_suggestions, schema)
+        # Directly match suggestions and schema keys
+        metadata_attributes = extractor(best_template_suggestions, schema)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
 
         # Check if metadata template is already applied
