@@ -79,10 +79,9 @@ def process_event(event, event_type):
     available_templates = get_available_templates(BOX_API_TOKEN)
     all_suggestions = fetch_all_metadata_suggestions(file_id, BOX_API_TOKEN, available_templates)
 
-    highest_percentage_filled = 0
     best_template_key = None
     best_template_suggestions = None
-    templates_to_apply = []
+    highest_percentage_filled = 0
 
     for template_key, suggestions in all_suggestions:
         if template_key not in template_schemas:
@@ -97,19 +96,11 @@ def process_event(event, event_type):
             highest_percentage_filled = filled_percentage
             best_template_key = template_key
             best_template_suggestions = suggestions
-        
-        # Check if template is over 80% filled
-        if filled_percentage >= 0.50:
-            templates_to_apply.append((template_key, suggestions))
 
     if best_template_key and best_template_suggestions:
-        templates_to_apply.append((best_template_key, best_template_suggestions))
-
-    for metadata_template, best_template_suggestions in templates_to_apply:
+        metadata_template = best_template_key
         schema = template_schemas[metadata_template]
         extractor = template_extractors.get(metadata_template, lambda x, y: {})
-        
-        # Directly match suggestions and schema keys
         metadata_attributes = extractor(best_template_suggestions, schema)
         metadata_str = ', '.join(f"{k}: {v}" for k, v in metadata_attributes.items())
 
