@@ -289,6 +289,7 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting Nike Contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
         extracted_attributes = {
+<<<<<<< HEAD
             schema["Contract Date"]: suggestions.get('Contract Date'),
             schema["Athlete Name"]: suggestions.get('Athlete Name'),
             schema["Agreement Terms"]: suggestions.get('Agreement Terms'),
@@ -299,6 +300,21 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
             schema["Payment Terms"]: suggestions.get('Payment Terms'),
             schema["Contract Start Date"]: suggestions.get('Contract Start Date'),
             schema["Contract End Date"]: suggestions.get('Contract End Date'),
+=======
+            normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
+            normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
+            normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
+            normalized_schema["servicestoberendered"]: normalized_suggestions.get('servicestoberendered'),
+            normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
+            normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
+            normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
+            normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
+            normalized_schema["termination"]: normalized_suggestions.get('termination'),
+            normalized_schema["performancebonuses"]: normalized_suggestions.get('performancebonuses'),
+            normalized_schema["paymentterms"]: normalized_suggestions.get('paymentterms'),
+            normalized_schema["contractstartdate"]: normalized_suggestions.get('contractstartdate'),
+            normalized_schema["contractenddate"]: normalized_suggestions.get('contractenddate'),
+>>>>>>> parent of 6222ad7 (changing template for nike)
         }
         logging.info(f"Extracted Nike Contract AI attributes: {extracted_attributes}")
         return extracted_attributes
@@ -308,7 +324,12 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
 
 # Mapping of template keys to extraction functions
 template_extractors = {
+<<<<<<< HEAD
     "contractAi": extract_contract_ai_attributes,
+=======
+    # Add more mappings for other templates
+    #"contractAi": extract_contract_ai_attributes,
+>>>>>>> parent of 6222ad7 (changing template for nike)
     "aitest": extract_order_form_ai_attributes,
     "uberaiextract": extract_uber_ai_attributes,
     "nikeplayercontrat": extract_nike_contract_ai_attributes,
