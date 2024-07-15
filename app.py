@@ -1,3 +1,4 @@
+#author Nick Read
 import os
 import sys
 import logging
