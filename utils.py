@@ -349,9 +349,9 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
             normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
-            normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
+            normalized_schema["contractrecipiant"]: normalized_suggestions.get('athletename'),
             normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
-            normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
+            normalized_schema["totalcontractvalue"]: normalized_suggestions.get('compensation'),
             normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
             normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
             normalized_schema["termination"]: normalized_suggestions.get('termination'),
@@ -359,6 +359,16 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
             normalized_schema["contractstartdate"]: normalized_suggestions.get('contractstartdate'),
             normalized_schema["contractenddate"]: normalized_suggestions.get('contractenddate'),
         }
+
+        # Remove keys with None values
+        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
+
+        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
+        return extracted_attributes
+    except KeyError as e:
+        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+        return {}
+
 
         # Remove keys with None values
         extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
