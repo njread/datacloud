@@ -126,15 +126,17 @@ def calculate_filled_percentage(suggestions, schema):
     filled_fields = sum(1 for key in schema.values() if suggestions.get(key) is not None)
     return filled_fields / total_fields if total_fields > 0 else 0
 
+
+Copy code
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
-    #useing the new extact_structured end point
+    
     url = "https://api.box.com/2.0/ai/extract_structured"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
-    #loop over templates in schema
+    
     for template_key in templates:
         if template_key not in template_extractors:
             logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
@@ -166,8 +168,15 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
                 all_suggestions.append((template_key, suggestions))
             else:
                 logging.info(f"No suggestions found for template {template_key}.")
+        
         except requests.exceptions.RequestException as e:
-            logging.error(f"Error extracting AI metadata for template {template_key} request id: {e.requestid}: {e}")
+            try:
+                error_response = e.response.json()
+                request_id = error_response.get('request_id', 'N/A')
+                logging.error(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
+                logging.error(f"Error message: {error_response.get('message', 'No error message')}")
+            except (ValueError, AttributeError):  # Handles case when response is not JSON or has no request_id
+                logging.error(f"Error extracting AI metadata for template {template_key}: {e}")
             logging.error(f"Request payload: {data}")
 
     return all_suggestions
