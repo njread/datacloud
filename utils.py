@@ -127,7 +127,6 @@ def calculate_filled_percentage(suggestions, schema):
     return filled_fields / total_fields if total_fields > 0 else 0
 
 
-Copy code
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
     
