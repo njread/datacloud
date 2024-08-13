@@ -128,21 +128,48 @@ def calculate_filled_percentage(suggestions, schema):
 
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
+    #useing the new extact_structured end point
+    url = "https://api.box.com/2.0/ai/extract_structured"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json"
+    }
+    #loop over templates in schema
     for template_key in templates:
         if template_key not in template_extractors:
             logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
             continue
+
+        # Prepare the payload for the extract_structured endpoint
+        data = {
+            "metadata_template": {
+                "type": "metadata_template",
+                "scope": "enterprise_964447513",
+                "template_key": template_key
+            },
+            "items": [
+                {
+                    "type": "file",
+                    "id": file_id
+                }
+            ]
+        }
+
         try:
-            response = requests.get(
-                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
-                headers={"Authorization": f"Bearer {token}"}
-            )
+            logging.info(f"Sending AI metadata extraction request for template {template_key} with payload: {data}")
+            response = requests.post(url, headers=headers, json=data)
             response.raise_for_status()
-            if response.json().get('suggestions'):
-                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
-                all_suggestions.append((template_key, response.json().get('suggestions')))
+
+            suggestions = response.json().get('suggestions', [])
+            if suggestions:
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
+                all_suggestions.append((template_key, suggestions))
+            else:
+                logging.info(f"No suggestions found for template {template_key}.")
         except requests.exceptions.RequestException as e:
-            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
+            logging.error(f"Error extracting AI metadata for template {template_key}: {e}")
+            logging.error(f"Request payload: {data}")
+
     return all_suggestions
 
 def get_template_schema(template_key, token):
