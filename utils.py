@@ -167,7 +167,7 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             else:
                 logging.info(f"No suggestions found for template {template_key}.")
         except requests.exceptions.RequestException as e:
-            logging.error(f"Error extracting AI metadata for template {template_key} request id: {e.request_id}: {e}")
+            logging.error(f"Error extracting AI metadata for template {template_key} request id: {e.requestid}: {e}")
             logging.error(f"Request payload: {data}")
 
     return all_suggestions
