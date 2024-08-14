@@ -161,7 +161,7 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             response.raise_for_status()
             
             # Extract request ID from the response headers
-            request_id = response.headers.get('X-Box-Request-Id', 'N/A')
+            request_id = response.headers.get('Box-Request-Id', 'N/A')
             logging.info(f"Box Request ID: {request_id}")
 
             suggestions = response.json().get('suggestions', [])
