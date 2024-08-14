@@ -138,7 +138,7 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
     
     for template_key in templates:
         if template_key not in template_extractors:
-            logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
+            #logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
             continue
 
         # Prepare the payload for the extract_structured endpoint
