@@ -138,7 +138,6 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
     
     for template_key in templates:
         if template_key not in template_extractors:
-            #logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
             continue
 
         # Prepare the payload for the extract_structured endpoint
@@ -160,15 +159,17 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             logging.info(f"Sending AI metadata extraction request for template {template_key} with payload: {data}")
             response = requests.post(url, headers=headers, json=data)
             response.raise_for_status()
+            
+            # Extract request ID from the response headers
+            request_id = response.headers.get('X-Box-Request-Id', 'N/A')
+            logging.info(f"Box Request ID: {request_id}")
 
             suggestions = response.json().get('suggestions', [])
             if suggestions:
                 logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
                 all_suggestions.append((template_key, suggestions))
             else:
-                logging.info(f"No suggestions found for template {template_key}.")
-                request_id = suggestions.get('request_id', 'N/A')
-                logging.info(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
+                logging.info(f"No suggestions found for template {template_key}. Box Request ID: {request_id}")
         
         except requests.exceptions.RequestException as e:
             try:
@@ -177,10 +178,12 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
                 logging.error(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
                 logging.error(f"Error message: {error_response.get('message', 'No error message')}")
             except (ValueError, AttributeError):  # Handles case when response is not JSON or has no request_id
-                logging.error(f"Error extracting AI metadata for template {template_key}: {e}")
-            logging.error(f"Request payload: {data}")
-
+                request_id = response.headers.get('X-Box-Request-Id', 'N/A') if response else 'N/A'
+                logging.error(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
+                logging.error(f"Request payload: {data}")
+    
     return all_suggestions
+
 
 def get_template_schema(template_key, token):
     url = f"https://api.box.com/2.0/metadata_templates/enterprise_964447513/{template_key}/schema"
