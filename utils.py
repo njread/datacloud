@@ -164,11 +164,11 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             suggestions = response.json().get('suggestions', [])
             if suggestions:
                 logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
-                request_id = suggestions.get('request_id', 'N/A')
-                logging.info(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
                 all_suggestions.append((template_key, suggestions))
             else:
                 logging.info(f"No suggestions found for template {template_key}.")
+                request_id = suggestions.get('request_id', 'N/A')
+                logging.info(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
         
         except requests.exceptions.RequestException as e:
             try:
