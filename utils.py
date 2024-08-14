@@ -164,6 +164,8 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             suggestions = response.json().get('suggestions', [])
             if suggestions:
                 logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
+                request_id = suggestions.get('request_id', 'N/A')
+                logging.info(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
                 all_suggestions.append((template_key, suggestions))
             else:
                 logging.info(f"No suggestions found for template {template_key}.")
@@ -456,7 +458,7 @@ template_extractors = {
     # "contractAi": extract_contract_ai_attributes,
     # "aitest": extract_order_form_ai_attributes,
     # "uberaiextract": extract_uber_ai_attributes,
-    "nikeplayercontract": extract_nike_contract_ai_attributes,
+    "nikeplayercontrat": extract_nike_contract_ai_attributes,
     # "nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
     "autoPolicy": auto_policy
     
