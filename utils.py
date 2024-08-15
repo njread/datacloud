@@ -159,8 +159,7 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             logging.info(f"Sending AI metadata extraction request for template {template_key} with payload: {data}")
             response = requests.post(url, headers=headers, json=data)
             response.raise_for_status()
-            for i in response.json():
-                print(i)
+            print(response.json())
             
             # # Extract request ID from the response headers
             # request_id = response.headers.get('Box-Request-Id', 'N/A')
