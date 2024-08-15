@@ -159,17 +159,19 @@ def fetch_all_metadata_suggestions(file_id, token, templates):
             logging.info(f"Sending AI metadata extraction request for template {template_key} with payload: {data}")
             response = requests.post(url, headers=headers, json=data)
             response.raise_for_status()
+            for i in response.json():
+                print(i)
             
-            # Extract request ID from the response headers
-            request_id = response.headers.get('Box-Request-Id', 'N/A')
-            logging.info(f"Box Request ID: {request_id}")
+            # # Extract request ID from the response headers
+            # request_id = response.headers.get('Box-Request-Id', 'N/A')
+            # logging.info(f"Box Request ID: {request_id}")
 
-            suggestions = response.json().get('suggestions', [])
-            if suggestions:
-                logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
-                all_suggestions.append((template_key, suggestions))
-            else:
-                logging.info(f"No suggestions found for template {template_key}. Box Request ID: {request_id}")
+            # suggestions = response.json().get('suggestions', [])
+            # if suggestions:
+            #     logging.info(f"Metadata suggestions fetched for template {template_key}: {suggestions}")
+            #     all_suggestions.append((template_key, suggestions))
+            # else:
+            #     logging.info(f"No suggestions found for template {template_key}. Box Request ID: {request_id}")
         
         except requests.exceptions.RequestException as e:
             try:
