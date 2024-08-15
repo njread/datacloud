@@ -1,4 +1,3 @@
-#git rebase
 import requests
 import logging
 import json
