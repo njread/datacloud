@@ -451,6 +451,7 @@ def auto_policy(suggestions, schema):
             normalized_schema.get("ishaildamagecovered"): normalized_suggestions.get('ishaildamagecovered'),
             normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
             normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
+            normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
             normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),
         }
 
