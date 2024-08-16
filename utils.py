@@ -442,8 +442,8 @@ def auto_policy(suggestions, schema):
         extracted_attributes = {
             normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
             normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
-            normalized_schema.get("policyeffectivestartdate"): normalized_suggestions.get('policyeffectivestartdate'),
-            normalized_schema.get("policyeffectiveenddate"): normalized_suggestions.get('policyeffectiveenddate'),
+            normalized_schema.get("policyeffectivestartdate1"): normalized_suggestions.get('policyeffectivestartdate1'),
+            normalized_schema.get("policyeffectiveenddate1"): normalized_suggestions.get('policyeffectiveenddate1'),
             normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
             normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
             normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
