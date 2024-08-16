@@ -469,11 +469,11 @@ def auto_policy(suggestions, schema):
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
-    # "contractAi": extract_contract_ai_attributes,
-    # "aitest": extract_order_form_ai_attributes,
-    # "uberaiextract": extract_uber_ai_attributes,
-    #"nikeplayercontrat": extract_nike_contract_ai_attributes,
-    # "nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
+    "contractAi": extract_contract_ai_attributes,
+    "aitest": extract_order_form_ai_attributes,
+    "uberaiextract": extract_uber_ai_attributes,
+    "nikeplayercontrat": extract_nike_contract_ai_attributes,
+    "nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
     "autoPolicy": auto_policy
     
 }

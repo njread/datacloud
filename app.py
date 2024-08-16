@@ -129,7 +129,7 @@ def process_event(event, event_type):
             "BoxFoldername": folder_name,
             "Boxuser": user_email,
         })
-
+    logging.info(f"Data to send to Salesforce: {data}")
     response = update_salesforce(data, SALESFORCE_DATA_CLOUD_ENDPOINT, SALESFORCE_DATA_CLOUD_ACCESS_TOKEN)
     if response.status_code == 202:
         logging.info("Salesforce data cloud update success")
