@@ -440,7 +440,7 @@ def auto_policy(suggestions, schema):
 
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            normalized_schema["policyNumber"]: normalized_suggestions.get('policyNumber'),
+            normalized_schema["policynumber"]: normalized_suggestions.get('policynumber'),
             normalized_schema["policyholdername"]: normalized_suggestions.get('policyholdername'),
             normalized_schema["policyeffectivestartdate"]: normalized_suggestions.get('policyeffectivestartdate'),
             normalized_schema["policyeffectiveenddate"]: normalized_suggestions.get('policyeffectiveenddate'),
