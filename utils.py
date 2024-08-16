@@ -448,7 +448,6 @@ def auto_policy(suggestions, schema):
             normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
             normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
             normalized_schema.get("bodilyinjuryliability"): normalized_suggestions.get('bodilyinjuryliability'),
-            normalized_schema.get("areuninsuredmotoristscovered"): normalized_suggestions.get('areuninsuredmotoristscovered'),
             normalized_schema.get("ishaildamagecovered"): normalized_suggestions.get('ishaildamagecovered'),
             normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
             normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
