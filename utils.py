@@ -440,19 +440,19 @@ def auto_policy(suggestions, schema):
 
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            normalized_schema["policynumber"]: normalized_suggestions.get('policynumber'),
-            normalized_schema["policyholdername"]: normalized_suggestions.get('policyholdername'),
-            normalized_schema["policyeffectivestartdate"]: normalized_suggestions.get('policyeffectivestartdate'),
-            normalized_schema["policyeffectiveenddate"]: normalized_suggestions.get('policyeffectiveenddate'),
-            normalized_schema["agencyprovidingcoverage"]: normalized_suggestions.get('agencyprovidingcoverage'),
-            normalized_schema["policytype"]: normalized_suggestions.get('policytype'),
-            normalized_schema["coverageforstatepropertyandcasualtyinsuranceguaranty"]: normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
-            normalized_schema["bodilyinjuryliability"]: normalized_suggestions.get('bodilyinjuryliability'),
-            normalized_schema["areuninsuredmotoristscovered"]: normalized_suggestions.get('areuninsuredmotoristscovered'),
-            normalized_schema["ishaildamagecovered"]: normalized_suggestions.get('ishaildamagecovered'),
-            normalized_schema["lossofclothingpayment"]: normalized_suggestions.get('lossofclothingpayment'),
-            normalized_schema["righttoappraisal"]: normalized_suggestions.get('righttoappraisal'),
-            normalized_schema["whatisthisdocumentabout"]: normalized_suggestions.get('whatisthisdocumentabout'),
+            normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
+            normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
+            normalized_schema.get("policyeffectivestartdate"): normalized_suggestions.get('policyeffectivestartdate'),
+            normalized_schema.get("policyeffectiveenddate"): normalized_suggestions.get('policyeffectiveenddate'),
+            normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
+            normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
+            normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
+            normalized_schema.get("bodilyinjuryliability"): normalized_suggestions.get('bodilyinjuryliability'),
+            normalized_schema.get("areuninsuredmotoristscovered"): normalized_suggestions.get('areuninsuredmotoristscovered'),
+            normalized_schema.get("ishaildamagecovered"): normalized_suggestions.get('ishaildamagecovered'),
+            normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
+            normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
+            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout?'),
         }
 
         # Remove keys with None values
@@ -463,6 +463,7 @@ def auto_policy(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
+
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
