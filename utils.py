@@ -80,6 +80,7 @@ def update_salesforce(data, endpoint, access_token):
             'Content-Type': 'application/json'
         }
         response = requests.post(endpoint, json=data, headers=headers)
+        logging.info(f"Salesforce response: {response.text}")
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException as e:
