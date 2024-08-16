@@ -427,33 +427,41 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-
-def extract_auto_policy_attributes(suggestions, schema):
-    logging.info(f"Extracting auto policy attributes: suggestions={suggestions}, schema={schema}")
+def auto_policy(suggestions, schema):
+    logging.info(f"Extracting Uber AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Extract attributes using normalized keys
-        extracted_attributes = {
-            schema["policynumber"]: suggestions.get('policynumber'),
-            schema["policyholdername"]: suggestions.get('policyholdername'),
-            schema["policyeffectivestartdate1"]: suggestions.get('policyeffectivestartdate1'),
-            schema["policyeffectiveenddate1"]: suggestions.get('policyeffectiveenddate1'),
-            schema["agencyprovidingcoverage"]: suggestions.get('agencyprovidingcoverage'),
-            schema["policytype"]: suggestions.get('policytype'),
-            schema["coverageforstatepropertyandcasualtyinsuranceguaranty"]: suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
-            schema["bodilyinjuryliability"]: suggestions.get('bodilyinjuryliability'),
-            schema["lossofclothingpayment"]: suggestions.get('lossofclothingpayment'),
-            schema["righttoappraisal"]: suggestions.get('righttoappraisal'),
-            schema["autocomprehensiveinsurance"]: suggestions.get('autocomprehensiveinsurance'),
-            schema["whatisthisdocumentabout"]: suggestions.get('whatisthisdocumentabout')
-        }
-        
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
+        # Normalize the suggestion keys to lowercase without spaces or hyphens
+        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
+        logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        logging.info(f"Extracted auto policy attributes: {extracted_attributes}")
+        # Normalize the schema keys to lowercase without spaces or hyphens
+        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
+        logging.info(f"Normalized schema: {normalized_schema}")
+
+        # Extract attributes using normalized keys and filter out None values
+        extracted_attributes = {
+            normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
+            normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
+            normalized_schema.get("policyeffectivestartdate1"): normalized_suggestions.get('policyeffectivestartdate1'),  # Note the '1'
+            normalized_schema.get("policyeffectiveenddate1"): normalized_suggestions.get('policyeffectiveenddate1'),  # Note the '1'
+            normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
+            normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
+            normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
+            normalized_schema.get("bodilyinjuryliability"): normalized_suggestions.get('bodilyinjuryliability'),
+            normalized_schema.get("ishaildamagecovered"): normalized_suggestions.get('ishaildamagecovered'),
+            normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
+            normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
+            normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
+            normalized_schema.get("whatisthisdocumentabout"): normalized_suggestions.get('whatisthisdocumentabout'),
+        }
+
+        # Remove keys with None values
+        extracted_attributes = {k: v for k, v in extracted_attributes.items() if k is not None and v is not None}
+
+        logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {schema}")
+        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
 
