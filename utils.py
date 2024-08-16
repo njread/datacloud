@@ -438,12 +438,12 @@ def auto_policy(suggestions, schema):
         normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys and ensure all keys are matched correctly
+        # Account for potential key variations (e.g., adding "1" to end of start/end dates)
         extracted_attributes = {
             normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
             normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
-            normalized_schema.get("policyeffectivestartdate1"): normalized_suggestions.get('policyeffectivestartdate1'),
-            normalized_schema.get("policyeffectiveenddate1"): normalized_suggestions.get('policyeffectiveenddate1'),
+            normalized_schema.get("policyeffectivestartdate1") or normalized_schema.get("policyeffectivestartdate"): normalized_suggestions.get('policyeffectivestartdate1'),
+            normalized_schema.get("policyeffectiveenddate1") or normalized_schema.get("policyeffectiveenddate"): normalized_suggestions.get('policyeffectiveenddate1'),
             normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
             normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
             normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
@@ -451,7 +451,7 @@ def auto_policy(suggestions, schema):
             normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
             normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
             normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
-            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),  # Corrected key mapping
+            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),
         }
 
         # Remove any None keys or values
@@ -464,13 +464,14 @@ def auto_policy(suggestions, schema):
         return {}
 
 
+
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
     # "contractAi": extract_contract_ai_attributes,
     # "aitest": extract_order_form_ai_attributes,
     # "uberaiextract": extract_uber_ai_attributes,
-    "nikeplayercontrat": extract_nike_contract_ai_attributes,
+    #"nikeplayercontrat": extract_nike_contract_ai_attributes,
     # "nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
     "autoPolicy": auto_policy
     
