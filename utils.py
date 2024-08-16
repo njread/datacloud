@@ -427,31 +427,34 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-def auto_policy(suggestions, schema):
-    logging.info(f"Extracting Uber AI attributes: suggestions={suggestions}, schema={schema}")
+
+def extract_auto_policy_attributes(suggestions, schema):
+    logging.info(f"Extracting auto policy attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
-        logging.info(f"Normalized suggestions: {normalized_suggestions}")
+        # Extract attributes using normalized keys
+        extracted_attributes = {
+            schema["policynumber"]: suggestions.get('policynumber'),
+            schema["policyholdername"]: suggestions.get('policyholdername'),
+            schema["policyeffectivestartdate1"]: suggestions.get('policyeffectivestartdate1'),
+            schema["policyeffectiveenddate1"]: suggestions.get('policyeffectiveenddate1'),
+            schema["agencyprovidingcoverage"]: suggestions.get('agencyprovidingcoverage'),
+            schema["policytype"]: suggestions.get('policytype'),
+            schema["coverageforstatepropertyandcasualtyinsuranceguaranty"]: suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
+            schema["bodilyinjuryliability"]: suggestions.get('bodilyinjuryliability'),
+            schema["lossofclothingpayment"]: suggestions.get('lossofclothingpayment'),
+            schema["righttoappraisal"]: suggestions.get('righttoappraisal'),
+            schema["autocomprehensiveinsurance"]: suggestions.get('autocomprehensiveinsurance'),
+            schema["whatisthisdocumentabout"]: suggestions.get('whatisthisdocumentabout')
+        }
+        
+        # Remove keys with None values
+        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
 
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
-        logging.info(f"Normalized schema: {normalized_schema}")
-
-        # Extract attributes using normalized keys and handle possible key mismatches
-        extracted_attributes = {}
-        for schema_key, schema_value in normalized_schema.items():
-            if schema_key in normalized_suggestions:
-                extracted_attributes[schema_value] = normalized_suggestions[schema_key]
-            else:
-                logging.warning(f"Key '{schema_key}' from schema not found in suggestions. Check the input data.")
-
-        logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted auto policy attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+        logging.error(f"KeyError: {e} - Schema: {schema}")
         return {}
-
 
 
 # Mapping of template keys to extraction functions
