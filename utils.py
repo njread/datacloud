@@ -438,7 +438,7 @@ def auto_policy(suggestions, schema):
         normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys and filter out None values
+        # Extract attributes using normalized keys and ensure all keys are matched correctly
         extracted_attributes = {
             normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
             normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
@@ -451,22 +451,13 @@ def auto_policy(suggestions, schema):
             normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
             normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
             normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
-            normalized_schema.get("whatisthisdocumentabout"): normalized_suggestions.get('whatisthisdocumentabout'),
+            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),  # Corrected key mapping
         }
 
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
-
-        logging.info(f"Extracted auto policy attributes: {extracted_attributes}")
-        return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
-        return {}
-
-        # Remove keys with None values
+        # Remove any None keys or values
         extracted_attributes = {k: v for k, v in extracted_attributes.items() if k is not None and v is not None}
 
-        logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted auto policy attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
