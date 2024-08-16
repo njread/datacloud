@@ -438,31 +438,20 @@ def auto_policy(suggestions, schema):
         normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys and filter out None values
-        extracted_attributes = {
-            normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
-            normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
-            normalized_schema.get("policyeffectivestartdate"): normalized_suggestions.get('policyeffectivestartdate1'),  # Note the '1'
-            normalized_schema.get("policyeffectiveenddate"): normalized_suggestions.get('policyeffectiveenddate1'),  # Note the '1'
-            normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
-            normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
-            normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
-            normalized_schema.get("bodilyinjuryliability"): normalized_suggestions.get('bodilyinjuryliability'),
-            normalized_schema.get("ishaildamagecovered"): normalized_suggestions.get('ishaildamagecovered'),
-            normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
-            normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
-            normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
-            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),
-        }
-
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if k is not None and v is not None}
+        # Extract attributes using normalized keys and handle possible key mismatches
+        extracted_attributes = {}
+        for schema_key, schema_value in normalized_schema.items():
+            if schema_key in normalized_suggestions:
+                extracted_attributes[schema_value] = normalized_suggestions[schema_key]
+            else:
+                logging.warning(f"Key '{schema_key}' from schema not found in suggestions. Check the input data.")
 
         logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
+
 
 
 # Mapping of template keys to extraction functions
