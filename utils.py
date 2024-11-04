@@ -200,65 +200,75 @@ def update_metadata(file_id, new_metadata, template_key, token):
         logging.error(f"Error updating metadata for file {file_id}: {e}")
 
 # Template-specific extraction functions
+
 def extract_order_form_ai_attributes(suggestions, schema):
     logging.info(f"Extracting order form AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces
-        normalized_suggestions = {k.strip().lower().replace(' ', ''): v for k, v in suggestions.items()}
+        # Normalize the suggestion keys
+        normalized_suggestions = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in suggestions.items()
+        }
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        # Normalize the schema keys to lowercase without spaces
-        normalized_schema = {k.strip().lower().replace(' ', ''): v for k, v in schema.items()}
+        # Normalize the schema keys
+        normalized_schema = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in schema.items()
+        }
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys
-        extracted_attributes = {
-            normalized_schema["ordernumber"]: normalized_suggestions.get('ordernumber'),
-            normalized_schema["invoicenumber"]: normalized_suggestions.get('invoicenumber'),
-            normalized_schema["address"]: normalized_suggestions.get('address'),
-            normalized_schema["invoicedate"]: normalized_suggestions.get('invoicedate'),
-            normalized_schema["total"]: normalized_suggestions.get('total'),
-        }
+        # Use normalized keys to extract attributes
+        extracted_attributes = {}
+        for key in ['ordernumber', 'invoicenumber', 'address', 'invoicedate', 'total']:
+            if key in normalized_schema:
+                schema_key = normalized_schema[key]
+                suggestion_value = normalized_suggestions.get(key)
+                if suggestion_value is not None:
+                    extracted_attributes[schema_key] = suggestion_value
+
         logging.info(f"Extracted order form AI attributes: {extracted_attributes}")
         return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+    except Exception as e:
+        logging.error(f"Error during attribute extraction: {e}")
         return {}
 
 def extract_contract_ai_attributes(suggestions, schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
+        # Normalize the suggestion keys
+        normalized_suggestions = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in suggestions.items()
+        }
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
+        # Normalize the schema keys
+        normalized_schema = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in schema.items()
+        }
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys and filter out None values
-        extracted_attributes = {
-            normalized_schema["contracttype"]: normalized_suggestions.get('contracttype'),
-            normalized_schema["contracteffectivedate"]: normalized_suggestions.get('contracteffectivedate'),
-            normalized_schema["contractmasterserviceagreement"]: normalized_suggestions.get('contractmasterserviceagreement'),
-            normalized_schema["client"]: normalized_suggestions.get('client'),
-            normalized_schema["projectname"]: normalized_suggestions.get('projectname'),
-            normalized_schema["assessmentandplanning"]: normalized_suggestions.get('assessmentandplanning'),
-            normalized_schema["configurationandsetup"]: normalized_suggestions.get('configurationandsetup'),
-            normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
-            normalized_schema["clientspecificdependencies"]: normalized_suggestions.get('clientspecificdependencies'),
-            normalized_schema["projectpersonnel"]: normalized_suggestions.get('projectpersonnel'),
-            normalized_schema["totalestimatedservicefees"]: normalized_suggestions.get('totalestimatedservicefees'),
-            normalized_schema["milestoneordeliverables"]: normalized_suggestions.get('milestoneordeliverables')
-        }
-
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
+        # Use normalized keys to extract attributes
+        extracted_attributes = {}
+        keys_to_extract = [
+            'contracttype', 'contracteffectivedate', 'contractmasterserviceagreement',
+            'client', 'projectname', 'assessmentandplanning', 'configurationandsetup',
+            'deliverables', 'clientspecificdependencies', 'projectpersonnel',
+            'totalestimatedservicefees', 'milestoneordeliverables'
+        ]
+        for key in keys_to_extract:
+            if key in normalized_schema:
+                schema_key = normalized_schema[key]
+                suggestion_value = normalized_suggestions.get(key)
+                if suggestion_value is not None:
+                    extracted_attributes[schema_key] = suggestion_value
 
         logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
         return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+    except Exception as e:
+        logging.error(f"Error during attribute extraction: {e}")
         return {}
 
 def classificationtest_ai_attributes(suggestions, schema):
@@ -278,31 +288,24 @@ def classificationtest_ai_attributes(suggestions, schema):
         }
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Use normalized keys to extract attributes
+        # Use normalized keys to extract attributes dynamically
         extracted_attributes = {}
-        for key in ['documenttype', 'orderformtotal', 'sowprice', 'anualbasefee']:
-            if key in normalized_schema:
-                schema_key = normalized_schema[key]
-                suggestion_value = normalized_suggestions.get(key)
-                if suggestion_value is not None:
-                    extracted_attributes[schema_key] = suggestion_value
+        for norm_key, schema_key in normalized_schema.items():
+            suggestion_value = normalized_suggestions.get(norm_key)
+            if suggestion_value is not None:
+                extracted_attributes[schema_key] = suggestion_value
 
         logging.info(f"Extracted classification test AI attributes: {extracted_attributes}")
         return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
+    except Exception as e:
+        logging.error(f"Error during attribute extraction: {e}")
         return {}
-
 
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
-    #"contractAi": extract_contract_ai_attributes,
+    "contractAi": extract_contract_ai_attributes,
     "classificationtest": classificationtest_ai_attributes,
-    #"aitest": extract_order_form_ai_attributes,
-    #"uberaiextract": extract_uber_ai_attributes,
-    #"nikeplayercontrat": extract_nike_contract_ai_attributes,
-    #"nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
-    
+    "orderFormAi": extract_order_form_ai_attributes,
+    # Add other templates as needed
 }
-
