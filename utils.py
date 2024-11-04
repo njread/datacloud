@@ -261,33 +261,38 @@ def extract_contract_ai_attributes(suggestions, schema):
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
 
-def classificationtest_ai_attributes(suggestions,schema):
-    logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
+def classificationtest_ai_attributes(suggestions, schema):
+    logging.info(f"Extracting classification test AI attributes: suggestions={suggestions}, schema={schema}")
     try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
+        # Normalize the suggestion keys
+        normalized_suggestions = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in suggestions.items()
+        }
         logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
+        # Normalize the schema keys
+        normalized_schema = {
+            k.strip().replace(' ', '').replace('-', '').lower(): v
+            for k, v in schema.items()
+        }
         logging.info(f"Normalized schema: {normalized_schema}")
 
-        # Extract attributes using normalized keys and filter out None values
-        extracted_attributes = {
-            normalized_schema["documentType"]: normalized_suggestions.get('documentType'),
-            normalized_schema["orderFormTotal"]: normalized_suggestions.get('orderFormTotal'),
-            normalized_schema["sowPrice"]: normalized_suggestions.get('sowPrice'),
-            normalized_schema["anualBaseFee"]: normalized_suggestions.get('anualBaseFee'),
-        }
+        # Use normalized keys to extract attributes
+        extracted_attributes = {}
+        for key in ['documenttype', 'orderformtotal', 'sowprice', 'anualbasefee']:
+            if key in normalized_schema:
+                schema_key = normalized_schema[key]
+                suggestion_value = normalized_suggestions.get(key)
+                if suggestion_value is not None:
+                    extracted_attributes[schema_key] = suggestion_value
 
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
-
-        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
+        logging.info(f"Extracted classification test AI attributes: {extracted_attributes}")
         return extracted_attributes
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
+
 
 # Mapping of template keys to extraction functions
 template_extractors = {
