@@ -310,82 +310,8 @@ def extract_contract_ai_attributes(suggestions, schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-def extract_nike_all_sports_agreement_attributes(suggestions, schema):
-    logging.info(f"Extracting Nike All Sports Agreement attributes: suggestions={suggestions}, schema={schema}")
-    try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
-        logging.info(f"Normalized suggestions: {normalized_suggestions}")
 
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
-        logging.info(f"Normalized schema: {normalized_schema}")
-
-        # Extract attributes using normalized keys and filter out None values
-        extracted_attributes = {
-            normalized_schema["title"]: normalized_suggestions.get('title'),
-            normalized_schema["university"]: normalized_suggestions.get('university'),
-            normalized_schema["effectivedate"]: normalized_suggestions.get('effectivedate'),
-            normalized_schema["expirationdate"]: normalized_suggestions.get('expirationdate'),
-            normalized_schema["renewaldate"]: normalized_suggestions.get('renewaldate'),
-            normalized_schema["termlength"]: normalized_suggestions.get('termlength'),
-            normalized_schema["terminationclauses"]: normalized_suggestions.get('terminationclauses'),
-            normalized_schema["totalcontractvalue"]: normalized_suggestions.get('totalcontractvalue'),
-            normalized_schema["paymentterms"]: normalized_suggestions.get('paymentterms'),
-            normalized_schema["bonusesincentives"]: normalized_suggestions.get('bonusesincentives'),
-            normalized_schema["deliverables"]: normalized_suggestions.get('deliverables'),
-            normalized_schema["milestones"]: normalized_suggestions.get('milestones'),
-            normalized_schema["responsibilities"]: normalized_suggestions.get('responsibilities'),
-            normalized_schema["jurisdiction"]: normalized_suggestions.get('jurisdiction'),
-            normalized_schema["signatories"]: normalized_suggestions.get('signatories'),
-            normalized_schema["confidentialityclause"]: normalized_suggestions.get('confidentialityclause'),
-            normalized_schema["attachmentsandexhibits"]: normalized_suggestions.get('attachmentsandexhibits'),
-            normalized_schema["preexistingcontracts"]: normalized_suggestions.get('preexistingcontracts')
-        }
-
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
-
-        logging.info(f"Extracted Nike All Sports Agreement attributes: {extracted_attributes}")
-        return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
-        return {}
-
-def extract_uber_ai_attributes(suggestions, schema):
-    logging.info(f"Extracting Uber AI attributes: suggestions={suggestions}, schema={schema}")
-    try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
-        logging.info(f"Normalized suggestions: {normalized_suggestions}")
-
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
-        logging.info(f"Normalized schema: {normalized_schema}")
-
-        # Extract attributes using normalized keys and filter out None values
-        extracted_attributes = {
-            normalized_schema["restaurantname"]: normalized_suggestions.get('restaurantname'),
-            normalized_schema["commissionfee"]: normalized_suggestions.get('commissionfee'),
-            normalized_schema["termandtermination"]: normalized_suggestions.get('termandtermination'),
-            normalized_schema["intellectualproperty"]: normalized_suggestions.get('intellectualproperty'),
-            normalized_schema["confidentiality"]: normalized_suggestions.get('confidentiality'),
-            normalized_schema["indemnification"]: normalized_suggestions.get('indemnification'),
-            normalized_schema["governinglaw"]: normalized_suggestions.get('governinglaw'),
-            normalized_schema["entireagreement"]: normalized_suggestions.get('entireagreement')
-        }
-
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
-
-        logging.info(f"Extracted Uber AI attributes: {extracted_attributes}")
-        return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
-        return {}
-
-# Update the extract_nike_contract_ai_attributes function similarly
-def extract_nike_contract_ai_attributes(suggestions, schema):
+def classificationtest_ai_attributes(suggestions,schema):
     logging.info(f"Extracting contract AI attributes: suggestions={suggestions}, schema={schema}")
     try:
         # Normalize the suggestion keys to lowercase without spaces or hyphens
@@ -399,9 +325,9 @@ def extract_nike_contract_ai_attributes(suggestions, schema):
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
             normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
-            normalized_schema["contractrecipiant"]: normalized_suggestions.get('athletename'),
+            normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
             normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
-            normalized_schema["totalcontractvalue"]: normalized_suggestions.get('compensation'),
+            normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
             normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
             normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
             normalized_schema["termination"]: normalized_suggestions.get('termination'),
@@ -469,11 +395,11 @@ def auto_policy(suggestions, schema):
 # Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
-    "contractAi": extract_contract_ai_attributes,
-    "aitest": extract_order_form_ai_attributes,
+    #"contractAi": extract_contract_ai_attributes,
+    "ClassificationTest": classificationtest_ai_attributes,
+    #"aitest": extract_order_form_ai_attributes,
     #"uberaiextract": extract_uber_ai_attributes,
     "nikeplayercontrat": extract_nike_contract_ai_attributes,
-    "nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
-    "autoPolicy": auto_policy
+    #"nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
     
 }
