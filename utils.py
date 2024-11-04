@@ -293,7 +293,7 @@ def classificationtest_ai_attributes(suggestions,schema):
 template_extractors = {
     # Add more mappings for other templates
     #"contractAi": extract_contract_ai_attributes,
-    "ClassificationTest": classificationtest_ai_attributes,
+    "classificationtest": classificationtest_ai_attributes,
     #"aitest": extract_order_form_ai_attributes,
     #"uberaiextract": extract_uber_ai_attributes,
     #"nikeplayercontrat": extract_nike_contract_ai_attributes,
