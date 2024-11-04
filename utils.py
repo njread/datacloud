@@ -300,12 +300,14 @@ def classificationtest_ai_attributes(suggestions, schema):
     except Exception as e:
         logging.error(f"Error during attribute extraction: {e}")
         return {}
-
-# Mapping of template keys to extraction functions
 template_extractors = {
     # Add more mappings for other templates
-    "contractAi": extract_contract_ai_attributes,
+    #"contractAi": extract_contract_ai_attributes,
     "classificationtest": classificationtest_ai_attributes,
-    "orderFormAi": extract_order_form_ai_attributes,
-    # Add other templates as needed
+    #"aitest": extract_order_form_ai_attributes,
+    #"uberaiextract": extract_uber_ai_attributes,
+    #"nikeplayercontrat": extract_nike_contract_ai_attributes,
+    #"nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
+    
 }
+
