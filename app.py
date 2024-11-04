@@ -100,7 +100,7 @@ def process_event(event, event_type):
             best_template_suggestions = suggestions
         
         # Check if template is over 80% filled
-        if filled_percentage >= 0.80:
+        if filled_percentage >= 0.50:
             templates_to_apply.append((template_key, suggestions))
 
     if best_template_key and best_template_suggestions:
