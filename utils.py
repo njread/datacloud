@@ -1,4 +1,3 @@
-#git rebase
 import requests
 import logging
 import json
@@ -80,7 +79,6 @@ def update_salesforce(data, endpoint, access_token):
             'Content-Type': 'application/json'
         }
         response = requests.post(endpoint, json=data, headers=headers)
-        logging.info(f"Salesforce response: {response.text}")
         response.raise_for_status()
         return response
     except requests.exceptions.RequestException as e:
@@ -127,72 +125,24 @@ def calculate_filled_percentage(suggestions, schema):
     filled_fields = sum(1 for key in schema.values() if suggestions.get(key) is not None)
     return filled_fields / total_fields if total_fields > 0 else 0
 
-
 def fetch_all_metadata_suggestions(file_id, token, templates):
     all_suggestions = []
-    
-    url = "https://api.box.com/2.0/ai/extract_structured"
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
-    
     for template_key in templates:
         if template_key not in template_extractors:
             logging.info(f"Skipping template {template_key} as it is not defined in template_extractors.")
             continue
-
-        # Prepare the payload for the extract_structured endpoint
-        data = {
-            "metadata_template": {
-                "type": "metadata_template",
-                "scope": "enterprise_964447513",
-                "template_key": template_key
-            },
-            "items": [
-                {
-                    "type": "file",
-                    "id": file_id
-                }
-            ]
-        }
-
         try:
-            logging.info(f"Sending AI metadata extraction request for template {template_key} with payload: {data}")
-            response = requests.post(url, headers=headers, json=data)
+            response = requests.get(
+                url=f"https://api.box.com/2.0/metadata_instances/suggestions?item=file_{file_id}&scope=enterprise_964447513&template_key={template_key}&confidence=experimental",
+                headers={"Authorization": f"Bearer {token}"}
+            )
             response.raise_for_status()
-
-            # Extract request ID from the response headers
-            request_id = response.headers.get('Box-Request-Id', 'N/A')
-            logging.info(f"Box Request ID: {request_id}")
-
-            # Process the response JSON
-            response_data = response.json()
-            logging.info(f"Received response for template {template_key}: {response_data}")
-
-            # Handle the suggestions (assuming the response contains a dictionary of key-value pairs)
-            if response_data:
-                # Log or process the suggestions as needed
-                logging.info(f"Metadata suggestions for template {template_key}: {response_data}")
-                all_suggestions.append((template_key, response_data))
-            else:
-                logging.info(f"No suggestions found for template {template_key}. Box Request ID: {request_id}")
-        
+            if response.json().get('suggestions'):
+                logging.info(f"Metadata suggestions fetched for template {template_key}: {response.json()}")
+                all_suggestions.append((template_key, response.json().get('suggestions')))
         except requests.exceptions.RequestException as e:
-            try:
-                error_response = e.response.json()
-                request_id = error_response.get('request_id', 'N/A')
-                logging.error(f"Error extracting AI metadata for template {template_key}. Box Request ID: {request_id}")
-                logging.error(f"Error message: {error_response.get('message', 'No error message')}")
-            except (ValueError, AttributeError):  # Handles case when response is not JSON or has no request_id
-                logging.error(f"Error extracting AI metadata for template {template_key}. Exception: {e}")
-                request_id = e.response.headers.get('X-Box-Request-Id', 'N/A') if e.response else 'N/A'
-                logging.error(f"Box Request ID: {request_id}")
-                logging.error(f"Request payload: {data}")
-    
+            logging.error(f"Error fetching metadata suggestions for template {template_key}: {e}")
     return all_suggestions
-
-
 
 def get_template_schema(template_key, token):
     url = f"https://api.box.com/2.0/metadata_templates/enterprise_964447513/{template_key}/schema"
@@ -324,16 +274,10 @@ def classificationtest_ai_attributes(suggestions,schema):
 
         # Extract attributes using normalized keys and filter out None values
         extracted_attributes = {
-            normalized_schema["contractdate"]: normalized_suggestions.get('contractdate'),
-            normalized_schema["athletename"]: normalized_suggestions.get('athletename'),
-            normalized_schema["agreementterms"]: normalized_suggestions.get('agreementterms'),
-            normalized_schema["compensation"]: normalized_suggestions.get('compensation'),
-            normalized_schema["commissiononplayerssignatureproducts"]: normalized_suggestions.get('commissiononplayerssignatureproducts'),
-            normalized_schema["canuseplayersnameandlikeness"]: normalized_suggestions.get('canuseplayersnameandlikeness'),
-            normalized_schema["termination"]: normalized_suggestions.get('termination'),
-            normalized_schema["paymentterms"]: normalized_suggestions.get('paymentterms'),
-            normalized_schema["contractstartdate"]: normalized_suggestions.get('contractstartdate'),
-            normalized_schema["contractenddate"]: normalized_suggestions.get('contractenddate'),
+            normalized_schema["documentType"]: normalized_suggestions.get('documentType'),
+            normalized_schema["orderFormTotal"]: normalized_suggestions.get('orderFormTotal'),
+            normalized_schema["sowPrice"]: normalized_suggestions.get('sowPrice'),
+            normalized_schema["anualBaseFee"]: normalized_suggestions.get('anualBaseFee'),
         }
 
         # Remove keys with None values
@@ -344,53 +288,6 @@ def classificationtest_ai_attributes(suggestions,schema):
     except KeyError as e:
         logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
         return {}
-
-
-        # Remove keys with None values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if v is not None}
-
-        logging.info(f"Extracted contract AI attributes: {extracted_attributes}")
-        return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
-        return {}
-def auto_policy(suggestions, schema):
-    logging.info(f"Extracting Uber AI attributes: suggestions={suggestions}, schema={schema}")
-    try:
-        # Normalize the suggestion keys to lowercase without spaces or hyphens
-        normalized_suggestions = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in suggestions.items()}
-        logging.info(f"Normalized suggestions: {normalized_suggestions}")
-
-        # Normalize the schema keys to lowercase without spaces or hyphens
-        normalized_schema = {k.strip().replace(' ', '').replace('-', '').lower(): v for k, v in schema.items()}
-        logging.info(f"Normalized schema: {normalized_schema}")
-
-        # Account for potential key variations (e.g., adding "1" to end of start/end dates)
-        extracted_attributes = {
-            normalized_schema.get("policynumber"): normalized_suggestions.get('policynumber'),
-            normalized_schema.get("policyholdername"): normalized_suggestions.get('policyholdername'),
-            normalized_schema.get("policyeffectivestartdate1") or normalized_schema.get("policyeffectivestartdate"): normalized_suggestions.get('policyeffectivestartdate1'),
-            normalized_schema.get("policyeffectiveenddate1") or normalized_schema.get("policyeffectiveenddate"): normalized_suggestions.get('policyeffectiveenddate1'),
-            normalized_schema.get("agencyprovidingcoverage"): normalized_suggestions.get('agencyprovidingcoverage'),
-            normalized_schema.get("policytype"): normalized_suggestions.get('policytype'),
-            normalized_schema.get("coverageforstatepropertyandcasualtyinsuranceguaranty"): normalized_suggestions.get('coverageforstatepropertyandcasualtyinsuranceguaranty'),
-            normalized_schema.get("bodilyinjuryliability"): normalized_suggestions.get('bodilyinjuryliability'),
-            normalized_schema.get("lossofclothingpayment"): normalized_suggestions.get('lossofclothingpayment'),
-            normalized_schema.get("righttoappraisal"): normalized_suggestions.get('righttoappraisal'),
-            normalized_schema.get("autocomprehensiveinsurance"): normalized_suggestions.get('autocomprehensiveinsurance'),
-            normalized_schema.get("whatisthisdocumentabout?"): normalized_suggestions.get('whatisthisdocumentabout'),
-        }
-
-        # Remove any None keys or values
-        extracted_attributes = {k: v for k, v in extracted_attributes.items() if k is not None and v is not None}
-
-        logging.info(f"Extracted auto policy attributes: {extracted_attributes}")
-        return extracted_attributes
-    except KeyError as e:
-        logging.error(f"KeyError: {e} - Schema: {normalized_schema}")
-        return {}
-
-
 
 # Mapping of template keys to extraction functions
 template_extractors = {
@@ -399,7 +296,8 @@ template_extractors = {
     "ClassificationTest": classificationtest_ai_attributes,
     #"aitest": extract_order_form_ai_attributes,
     #"uberaiextract": extract_uber_ai_attributes,
-    "nikeplayercontrat": extract_nike_contract_ai_attributes,
+    #"nikeplayercontrat": extract_nike_contract_ai_attributes,
     #"nikeallsportsagreement": extract_nike_all_sports_agreement_attributes,
     
 }
+
