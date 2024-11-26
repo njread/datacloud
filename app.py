@@ -2,10 +2,8 @@
 import os
 import sys
 import logging
-import requests
 from flask import Flask, request, jsonify
 from threading import Thread
-import json
 from utils import (
     get_preview_count,
     fetch_all_metadata_suggestions,
