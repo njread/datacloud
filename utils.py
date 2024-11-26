@@ -96,7 +96,8 @@ def apply_metadata_to_file(file_id, metadata, template_key, token):
     escaped_metadata = {k: v.replace("\n", "\\n").replace("u00b7", "\u2022") if isinstance(v, str) else v for k, v in metadata.items()}
     
     logging.info(f"Applying metadata to file {file_id} with template {template_key}: {escaped_metadata}")
-    
+    if 'policyNumber' in metadata:
+        metadata['policyNumber'] = int(metadata['policyNumber'])
     try:
         response = requests.post(url, json=escaped_metadata, headers=headers)
         response.raise_for_status()
